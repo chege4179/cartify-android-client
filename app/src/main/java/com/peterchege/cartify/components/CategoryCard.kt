@@ -32,7 +32,6 @@ fun CategoryCard(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .background(Color.White)
             .border(
                 width = 1.dp,
                 color = Color.LightGray,
@@ -49,6 +48,5 @@ fun CategoryCard(
             fontSize = 14.sp
         )
     }
-
-
 }
+

@@ -78,11 +78,7 @@ fun BottomNavBar(
                 }
             )
         }
-
-
     }
-
-
 }
 
 

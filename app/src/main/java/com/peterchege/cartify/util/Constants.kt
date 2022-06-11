@@ -1,7 +1,7 @@
 package com.peterchege.cartify.util
 
 object Constants {
-    const val RemoteURL = "https://cartify-server-production.up.railway.app"
+    const val RemoteURL = "https://cartifyserver.vercel.app"
     const val LocalURL = "http://10.0.2.2:7000"
     const val BASE_URL = RemoteURL
     const val DATABASE_NAME ="cartify_db"

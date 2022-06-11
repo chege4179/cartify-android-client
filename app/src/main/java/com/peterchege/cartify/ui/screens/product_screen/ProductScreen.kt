@@ -1,9 +1,11 @@
 package com.peterchege.cartify.ui.screens.product_screen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddShoppingCart
@@ -22,6 +24,7 @@ import coil.compose.rememberImagePainter
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.peterchege.cartify.components.CartIconComponent
+import com.peterchege.cartify.ui.theme.Grey100
 import com.peterchege.cartify.util.Screens
 
 
@@ -114,14 +117,29 @@ fun ProductScreen(
                             text = product.description,
 
                             )
-                        Button(onClick = {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Button(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp),
+                            shape = RoundedCornerShape(20),
+                            onClick = {
                             viewModel.addToCart()
 
                         }) {
                             Text(text = "Add To Cart")
 
                         }
-                        Button(onClick = {
+                        Spacer(modifier = Modifier.height(15.dp))
+
+                        OutlinedButton(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                                .background(Grey100)
+                            ,
+                            shape = RoundedCornerShape(20),
+                            onClick = {
                             viewModel.addToWishList(
                                 product = product,
                                 scaffoldState = scaffoldState

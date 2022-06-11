@@ -2,6 +2,7 @@ package com.peterchege.cartify.components
 
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
@@ -18,6 +19,9 @@ import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.peterchege.cartify.models.Product
+import com.peterchege.cartify.ui.theme.Grey100
+import com.peterchege.cartify.ui.theme.Grey200
+
 
 @ExperimentalCoilApi
 @Composable
@@ -33,6 +37,7 @@ fun ProductCard(
         modifier = Modifier
             .padding(5.dp)
             .fillMaxWidth()
+
             .clickable {
                 onNavigateToProductScreen(product._id)
             }
