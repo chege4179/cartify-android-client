@@ -1,11 +1,12 @@
 package com.peterchege.cartify.ui.screens.dashboard_screens.wishlist_screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,6 +20,7 @@ import com.peterchege.cartify.room.entities.toProduct
 import com.peterchege.cartify.util.Screens
 
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalFoundationApi
 @Composable
 fun WishListScreen(
@@ -64,10 +66,10 @@ fun WishListScreen(
                 Text("Your wishlist is empty")
             }else{
                 LazyVerticalGrid(
-                    cells = GridCells.Fixed(2),
-                    Modifier.background(MaterialTheme.colors.background)
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.background(MaterialTheme.colors.background)
                 ){
-                    items(wishListViewModel.wishlist.value){ product ->
+                    items(items = wishListViewModel.wishlist.value){ product ->
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {

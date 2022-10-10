@@ -1,5 +1,6 @@
 package com.peterchege.cartify.ui.screens.sign_up_screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -15,6 +16,7 @@ import androidx.navigation.NavController
 import com.peterchege.cartify.util.Screens
 
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SignUpScreen(
     navController: NavController,

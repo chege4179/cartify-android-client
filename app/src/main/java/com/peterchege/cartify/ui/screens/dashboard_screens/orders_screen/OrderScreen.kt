@@ -1,5 +1,6 @@
 package com.peterchege.cartify.ui.screens.dashboard_screens.orders_screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -17,6 +18,7 @@ import com.peterchege.cartify.ui.screens.dashboard_screens.orders_screen.tabs.Pa
 import com.peterchege.cartify.ui.screens.dashboard_screens.orders_screen.tabs.PendingOrdersTab
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun OrderScreen(

@@ -1,5 +1,6 @@
 package com.peterchege.cartify.ui.screens.dashboard_screens.profile_screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
@@ -17,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import com.peterchege.cartify.components.CartIconComponent
 import com.peterchege.cartify.util.Screens
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ProfileScreen(
     navController: NavController,

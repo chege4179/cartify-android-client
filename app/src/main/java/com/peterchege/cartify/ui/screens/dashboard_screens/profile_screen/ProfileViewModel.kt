@@ -9,8 +9,6 @@ import com.peterchege.cartify.repositories.CartRepository
 import com.peterchege.cartify.repositories.UserRepository
 import com.peterchege.cartify.room.entities.cartItem
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.internal.processedrootsentinel.codegen._com_peterchege_cartify_CartifyApp
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

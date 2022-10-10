@@ -1,5 +1,6 @@
 package com.peterchege.cartify.ui.screens.product_screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +29,7 @@ import com.peterchege.cartify.ui.theme.Grey100
 import com.peterchege.cartify.util.Screens
 
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalCoilApi
 @ExperimentalPagerApi
 
