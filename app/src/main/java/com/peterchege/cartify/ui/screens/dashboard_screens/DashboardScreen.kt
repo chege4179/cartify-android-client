@@ -28,7 +28,6 @@ import com.peterchege.cartify.ui.screens.dashboard_screens.orders_screen.OrderSc
 import com.peterchege.cartify.ui.screens.dashboard_screens.profile_screen.ProfileScreen
 import com.peterchege.cartify.ui.screens.dashboard_screens.wishlist_screen.WishListScreen
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BottomNavBar(
     items:List<BottomNavItem>,
