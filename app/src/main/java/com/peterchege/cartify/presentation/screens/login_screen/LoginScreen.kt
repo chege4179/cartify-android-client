@@ -19,6 +19,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -28,6 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.peterchege.cartify.core.util.Screens
+import com.peterchege.cartify.core.util.UiEvent
+import com.peterchege.cartify.core.util.helperFunctions
+import kotlinx.coroutines.flow.collectLatest
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalComposeUiApi
@@ -39,6 +43,20 @@ fun LoginScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val scaffoldState = rememberScaffoldState()
     val context = LocalContext.current
+    LaunchedEffect(key1 = true) {
+        viewModel.eventFlow.collectLatest { event ->
+            when (event) {
+                is UiEvent.ShowSnackbar -> {
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = event.uiText
+                    )
+                }
+                is UiEvent.Navigate -> {
+                    navController.navigate(route = event.route)
+                }
+            }
+        }
+    }
     Scaffold(
         scaffoldState = scaffoldState,
         modifier = Modifier
@@ -84,11 +102,12 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         keyboardController?.hide()
-                        viewModel.loginUser(
-                            navController = navController,
-                            scaffoldState = scaffoldState,
-                            context = context
-                        )
+                        if (helperFunctions.hasInternetConnection(context = context)){
+                            viewModel.loginUser()
+                        }else{
+                            viewModel.showNoInternetSnackBar()
+                        }
+
                     }
                 )
                 {
@@ -101,14 +120,7 @@ fun LoginScreen(
                 }) {
                     Text(text = "Don't have an account yet...Sign Up")
                 }
-
-
             }
-
         }
-
-
     }
-
-
 }

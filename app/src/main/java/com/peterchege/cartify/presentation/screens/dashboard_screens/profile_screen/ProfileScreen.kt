@@ -31,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.peterchege.cartify.presentation.components.CartIconComponent
 import com.peterchege.cartify.core.util.Screens
+import com.peterchege.cartify.presentation.components.NoLoggedInUserScreenComponent
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -71,30 +72,14 @@ fun ProfileScreen(
 
     ) {
         if (user.value == null) {
-            Text(text = "You have not logged in yet")
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Button(onClick = {
-                    navHostController.navigate(Screens.LOGIN_SCREEN)
-                }) {
-                    Text(text = "Login")
-                }
-                Spacer(modifier = Modifier.height(20.dp))
-                Button(onClick = {
-                    navHostController.navigate(Screens.SIGN_UP_SCREEN)
-                }) {
-                    Text(text = "Sign Up")
-                }
-
-            }
-        } else {
+            NoLoggedInUserScreenComponent(navHostController = navHostController)
+        }else if(user.value!!._id ==""){
+            NoLoggedInUserScreenComponent(navHostController = navHostController)
+        }  else {
             user.value.let {
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column(
+                    modifier = Modifier.padding(10.dp)
+                ) {
                     if (it != null) {
                         Text(text = it.fullname)
                         Text(text = it.email)

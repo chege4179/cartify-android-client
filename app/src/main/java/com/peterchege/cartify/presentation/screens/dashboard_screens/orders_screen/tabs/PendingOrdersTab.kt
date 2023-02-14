@@ -15,6 +15,7 @@
  */
 package com.peterchege.cartify.presentation.screens.dashboard_screens.orders_screen.tabs
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -22,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun PendingOrdersTab(){
     Scaffold(

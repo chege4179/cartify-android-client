@@ -26,8 +26,11 @@ import com.peterchege.cartify.core.api.CartifyApi
 import com.peterchege.cartify.core.api.requests.LoginUser
 import com.peterchege.cartify.data.UserRepositoryImpl
 import com.peterchege.cartify.core.util.Screens
+import com.peterchege.cartify.core.util.UiEvent
 import com.peterchege.cartify.core.util.helperFunctions
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -49,7 +52,8 @@ class LoginScreenViewModel @Inject constructor(
     private var _passwordState = mutableStateOf("")
     var passwordState: State<String> =  _passwordState
 
-
+    private val _eventFlow = MutableSharedFlow<UiEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
     fun OnChangePassword(text:String){
         _passwordState.value =  text
 
@@ -58,50 +62,43 @@ class LoginScreenViewModel @Inject constructor(
         _emailState.value =  text
 
     }
-    fun loginUser(
-        navController: NavController,
-        context: Context,
-        scaffoldState: ScaffoldState){
+    fun loginUser(){
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                if (helperFunctions.hasInternetConnection(context = context)){
-                    val loginUser = LoginUser(
-                        email = _emailState.value,
-                        password = _passwordState.value
-                    )
-                    val response = api.loginUser(loginUser = loginUser)
-                    _isLoading.value = false
-                    scaffoldState.snackbarHostState.showSnackbar(
-                        message = response.msg
-                    )
-                    if (response.success){
-                        navController.navigate(Screens.DASHBOARD_SCREEN)
-                        response.user?.let {
-                            userRepositoryImpl.saveUser(it)
-                        }
+                val loginUser = LoginUser(
+                    email = _emailState.value,
+                    password = _passwordState.value
+                )
+                val response = api.loginUser(loginUser = loginUser)
+                _isLoading.value = false
+                _eventFlow.emit(UiEvent.ShowSnackbar(uiText =response.msg ))
+
+                if (response.success){
+                    _eventFlow.emit(UiEvent.Navigate(route = Screens.DASHBOARD_SCREEN))
+                    response.user?.let {
+                        userRepositoryImpl.saveUser(it)
                     }
-                }else{
-                    _isLoading.value = false
-                    scaffoldState.snackbarHostState.showSnackbar(
-                        message = "No Internet Connection found"
-                    )
                 }
 
             }catch (e:HttpException){
                 _isLoading.value = false
-                scaffoldState.snackbarHostState.showSnackbar(
-                    message = "Server down...Please try again later"
-                )
+                _eventFlow.emit(UiEvent.ShowSnackbar(uiText = "Server down...Please try again later" ))
+
 
             }catch (e:IOException){
                 _isLoading.value = false
-                scaffoldState.snackbarHostState.showSnackbar(
-                    message = "An unexpected error occurred"
-                )
+                _eventFlow.emit(UiEvent.ShowSnackbar(uiText = "An unexpected error occurred" ))
 
             }
         }
+    }
+
+    fun showNoInternetSnackBar(){
+        viewModelScope.launch {
+            _eventFlow.emit(UiEvent.ShowSnackbar(uiText ="No Internet found....Please try again later" ))
+        }
+
     }
 
 

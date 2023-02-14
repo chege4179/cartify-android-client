@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.peterchege.cartify.presentation.screens.dashboard_screens.orders_screen.tabs
-
-import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@Composable
-fun PastOrdersTab(){
-    Scaffold(
-        modifier = Modifier.fillMaxSize()
-    ) {
+package com.peterchege.cartify.core.util
 
 
-    }
+abstract class Event
+
+sealed class UiEvent: Event() {
+    data class ShowSnackbar(val uiText: String) : UiEvent()
+    data class Navigate(val route: String) : UiEvent()
+
+
 }
