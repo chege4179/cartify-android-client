@@ -37,11 +37,11 @@ import com.peterchege.cartify.core.room.entities.CartItem
 @Composable
 fun CartItemCard(
     cartItem: CartItem,
-    onProductNavigate:(String) -> Unit,
-    onRemoveCartItem:(String)->Unit,
-    onReduceAmount:(Int,String) -> Unit,
-    onIncreaseAmount:(Int,String) -> Unit
-){
+    onProductNavigate: (String) -> Unit,
+    onRemoveCartItem: (String) -> Unit,
+    onReduceAmount: (Int, String) -> Unit,
+    onIncreaseAmount: (Int, String) -> Unit
+) {
     Card(
         modifier = Modifier
             .padding(vertical = 10.dp)
@@ -50,18 +50,15 @@ fun CartItemCard(
             .background(Color.White)
             .clickable {
                 onProductNavigate(cartItem.id)
-            }
-        ,
+            },
         shape = RoundedCornerShape(20.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 10.dp)
+                .padding(vertical = 10.dp),
 
-            ,
-
-        ) {
+            ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -73,11 +70,10 @@ fun CartItemCard(
                         crossfade(true)
 
                     },
-
                 )
                 Image(
                     painter = painter,
-                    contentDescription ="Product Image",
+                    contentDescription = "Product Image",
                     modifier = Modifier
                         .fillMaxWidth(0.33f)
                         .height(110.dp)
@@ -113,56 +109,49 @@ fun CartItemCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
-                Icon(
-                    Icons.Default.FavoriteBorder,
+                IconButton(
+                    onClick = {
 
-                    contentDescription = "Like",
-                    modifier = Modifier
-                        .clickable {
-
-                        }
-
-                )
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FavoriteBorder,
+                        contentDescription = "Like",
+                    )
+                }
                 TextButton(
                     onClick = {
                         onRemoveCartItem(cartItem.id)
-                }) {
+                    }) {
                     Text("DELETE")
 
                 }
-                Icon(
-                    Icons.Default.RemoveCircle,
-                    contentDescription = "Reduce Amount",
-                    tint = MaterialTheme.colors.primary,
-                    modifier = Modifier
-                        .clickable {
-                            onReduceAmount(cartItem.quantity,cartItem.id)
-                        }
+                IconButton(
+                    onClick = {
+                        onReduceAmount(cartItem.quantity, cartItem.id)
+                    }) {
+                    Icon(
+                        imageVector = Icons.Default.RemoveCircle,
+                        contentDescription = "Reduce Amount",
+                        tint = MaterialTheme.colors.primary,
+                    )
 
-                )
+                }
                 Text(
                     text = cartItem.quantity.toString()
                 )
-                Icon(
-                    Icons.Default.AddCircle,
-                    contentDescription = "Increase Amount",
-                    tint = MaterialTheme.colors.primary,
-                    modifier = Modifier
-                        .clickable {
-                            onIncreaseAmount(cartItem.quantity,cartItem.id)
-
-                        }
-
-                )
-
-
+                IconButton(
+                    onClick = {
+                        onIncreaseAmount(cartItem.quantity, cartItem.id)
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AddCircle,
+                        contentDescription = "Increase Amount",
+                        tint = MaterialTheme.colors.primary,
+                    )
+                }
             }
-
-
         }
-
-
-
-
     }
 }

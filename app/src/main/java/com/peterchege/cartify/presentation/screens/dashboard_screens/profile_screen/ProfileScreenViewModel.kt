@@ -20,7 +20,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.peterchege.cartify.core.room.entities.CartItem
+import com.peterchege.cartify.core.util.Constants
 import com.peterchege.cartify.domain.repository.CartRepository
+import com.peterchege.cartify.domain.repository.SettingsRepository
 import com.peterchege.cartify.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,8 +35,15 @@ import javax.inject.Inject
 class ProfileScreenViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val cartRepository: CartRepository,
+    private val settingsRepository: SettingsRepository,
 
     ) : ViewModel() {
+    val theme = settingsRepository.getTheme()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = Constants.LIGHT_MODE
+        )
 
     val cartItems = cartRepository.getCart()
         .stateIn(
@@ -48,12 +57,11 @@ class ProfileScreenViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000L),
             initialValue = null
         )
-
-
-
-
-
-
+    fun setTheme(themeValue:String){
+        viewModelScope.launch {
+            settingsRepository.setTheme(themeValue = themeValue)
+        }
+    }
     fun logoutUser() {
         viewModelScope.launch {
             userRepository.logoutUser()

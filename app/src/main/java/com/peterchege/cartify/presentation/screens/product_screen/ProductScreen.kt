@@ -23,8 +23,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -34,11 +37,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
+import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberImagePainter
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import com.peterchege.cartify.presentation.components.CartIconComponent
+import com.peterchege.cartify.presentation.components.PagerIndicator
 import com.peterchege.cartify.presentation.theme.Grey100
+import kotlinx.coroutines.launch
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -87,21 +94,68 @@ fun ProductScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item {
-                    HorizontalPager(count = product.images.size) { image ->
-                        Image(
-                            painter = rememberImagePainter(
-                                data = product.images[image].url,
-                                builder = {
-                                    crossfade(true)
+                    val pagerState1 = rememberPagerState(initialPage = 0)
+                    val coroutineScope = rememberCoroutineScope()
+                    HorizontalPager(
+                        count = product.images.size,
+                        state = pagerState1
+                    ) { image ->
+                        Box(
+                            modifier = Modifier.fillMaxWidth()
+                        ){
+                            SubcomposeAsyncImage(
+                                model = product.images[image].url,
+                                loading = {
+                                    Box(modifier = Modifier.fillMaxSize()) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.align(
+                                                Alignment.Center
+                                            )
+                                        )
+                                    }
+                                },
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(300.dp),
+                                contentDescription = "Product Images"
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .width(45.dp)
+                                    .align(Alignment.TopEnd)
+                                    .height(25.dp)
+                                    .clip(RoundedCornerShape(15.dp))
+                                    .background(Color.White)
 
-                                }
-                            ),
-                            contentDescription = "Post Image",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(300.dp)
-                        )
+                            ){
+                                Text(
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .padding(horizontal = 3.dp),
+                                    textAlign = TextAlign.Start,
+                                    fontSize = 17.sp,
+                                    text = "${image + 1}/${product.images.size}"
+                                )
+                            }
+
+                        }
+
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(20.dp)
+                    ) {
+                        PagerIndicator(
+                            modifier = Modifier.align(Alignment.Center),
+                            pagerState = pagerState1
+                        ) {
+                            coroutineScope.launch {
+                                pagerState1.scrollToPage(it)
+                            }
+                        }
                     }
                 }
                 item {
@@ -136,7 +190,7 @@ fun ProductScreen(
                         Button(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(50.dp),
+                                .height(70.dp),
                             shape = RoundedCornerShape(20),
                             onClick = {
                             viewModel.addToCart()

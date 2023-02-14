@@ -15,10 +15,8 @@
  */
 package com.peterchege.cartify.data
 
-import android.content.SharedPreferences
 import com.peterchege.cartify.core.datastore.repository.UserDataStoreRepository
 import com.peterchege.cartify.domain.models.User
-import com.peterchege.cartify.core.util.Constants
 import com.peterchege.cartify.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

@@ -15,20 +15,22 @@
  */
 package com.peterchege.cartify.core.util
 
+import androidx.datastore.preferences.core.stringPreferencesKey
+
 object Constants {
     const val RemoteURL = "https://cartifyserver.vercel.app"
     const val LocalURL = "http://10.0.2.2:7000"
     const val BASE_URL = RemoteURL
     const val DATABASE_NAME ="cartify_db"
 
-    const val USER_FULL_NAME ="USER_FULL_NAME"
-    const val USER_EMAIL_ADDRESS ="USER_EMAIL_ADDRESS"
-    const val USER_PHONE_NUMBER ="USER_PHONE_NUMBER"
-    const val USER_PASSWORD ="USER_PASSWORD"
-    const val USER_ADDRESS ="USER_ADDRESS"
-    const val USER_ID ="USER_ID"
     const val CHANNEL_ID = "CHANNEL_ID"
 
+    val THEME_OPTIONS = stringPreferencesKey("theme_options")
+    const val USER_PREFERENCES = "USER_PREFERENCES"
+
     const val FCM_TOKEN ="FCM_TOKEN"
+
+    const val LIGHT_MODE= "LIGHT_MODE"
+    const val DARK_MODE = "DARK_MODE"
 
 }

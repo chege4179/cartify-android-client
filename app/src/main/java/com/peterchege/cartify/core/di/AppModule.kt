@@ -18,19 +18,18 @@ package com.peterchege.cartify.core.di
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.peterchege.cartify.core.util.Constants
 import com.peterchege.cartify.core.api.CartifyApi
+import com.peterchege.cartify.core.datastore.preferences.UserSettingsPreferences
 import com.peterchege.cartify.core.datastore.repository.UserDataStoreRepository
 import com.peterchege.cartify.core.room.database.CartifyDatabase
-import com.peterchege.cartify.data.CartRepositoryImpl
-import com.peterchege.cartify.data.OrderRepositoryImpl
-import com.peterchege.cartify.data.ProductRepositoryImpl
-import com.peterchege.cartify.data.UserRepositoryImpl
-import com.peterchege.cartify.domain.repository.CartRepository
-import com.peterchege.cartify.domain.repository.OrderRepository
-import com.peterchege.cartify.domain.repository.ProductRepository
-import com.peterchege.cartify.domain.repository.UserRepository
+import com.peterchege.cartify.data.*
+import com.peterchege.cartify.domain.repository.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -65,8 +64,29 @@ object AppModule {
     }
     @Provides
     @Singleton
+    fun provideDatastorePreferences(@ApplicationContext context: Context):
+            DataStore<Preferences> =
+        PreferenceDataStoreFactory.create(
+            produceFile = {
+                context.preferencesDataStoreFile(Constants.USER_PREFERENCES)
+            }
+        )
+    @Provides
+    @Singleton
+    fun provideUserSettingPreferences(dataStore: DataStore<Preferences>): UserSettingsPreferences {
+        return UserSettingsPreferences(dataStore = dataStore)
+    }
+    @Provides
+    @Singleton
     fun provideUserDataStore(@ApplicationContext context: Context):UserDataStoreRepository {
         return UserDataStoreRepository(context = context)
+    }
+    @Provides
+    @Singleton
+    fun providesSettingsRepository(userSettingsPreferences: UserSettingsPreferences):SettingsRepository{
+        return SettingsRepositoryImpl(
+            userSettingsRepository = userSettingsPreferences
+        )
     }
 
     @Provides

@@ -17,10 +17,7 @@ package com.peterchege.cartify.presentation.screens.dashboard_screens.profile_sc
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -29,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.peterchege.cartify.core.util.Constants
 import com.peterchege.cartify.presentation.components.CartIconComponent
 import com.peterchege.cartify.core.util.Screens
 import com.peterchege.cartify.presentation.components.NoLoggedInUserScreenComponent
@@ -40,6 +38,7 @@ fun ProfileScreen(
     navHostController: NavController,
     viewModel: ProfileScreenViewModel = hiltViewModel()
 ) {
+    val themeState = viewModel.theme.collectAsStateWithLifecycle()
     val user = viewModel.user.collectAsStateWithLifecycle(initialValue = null)
     val cart = viewModel.cartItems.collectAsStateWithLifecycle(initialValue = emptyList())
     Scaffold(
@@ -87,8 +86,19 @@ fun ProfileScreen(
                     if (user != null) {
                         Text(text = user.fullname)
                         Text(text = user.email)
+                        Text(text = themeState.value)
 
 
+                        Switch(
+                            checked = themeState.value == Constants.DARK_MODE,
+                            onCheckedChange = {
+                                if (it){
+                                    viewModel.setTheme(themeValue = Constants.DARK_MODE)
+                                }else{
+                                    viewModel.setTheme(themeValue = Constants.LIGHT_MODE)
+
+                                }
+                            })
                         Button(
                             onClick = {
                                 viewModel.logoutUser()

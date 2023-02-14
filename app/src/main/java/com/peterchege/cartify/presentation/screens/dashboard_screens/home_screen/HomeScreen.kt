@@ -141,11 +141,10 @@ fun HomeScreen(
                         LazyRow(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 5.dp)
+                                .padding(bottom = 2.dp)
                         ) {
                             items(categories) { category ->
                                 CategoryCard(navController = navController, categoryItem = category)
-                                Spacer(modifier = Modifier.width(10.dp))
 
                             }
 
