@@ -23,10 +23,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.peterchege.cartify.core.api.CartifyApi
+import com.peterchege.cartify.core.util.Resource
 import com.peterchege.cartify.domain.models.Product
 import com.peterchege.cartify.core.util.helperFunctions
 import com.peterchege.cartify.domain.repository.CartRepository
 import com.peterchege.cartify.domain.repository.ProductRepository
+import com.peterchege.cartify.domain.use_cases.GetProductsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -43,8 +45,15 @@ class HomeScreenViewModel @Inject constructor(
     private val productRepository: ProductRepository,
     private val cartRepository: CartRepository,
     private val api: CartifyApi,
+    private val getAllProductsUseCase: GetProductsUseCase,
 
     ) : ViewModel() {
+    val productsUseCase = getAllProductsUseCase()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = Resource.Loading()
+        )
     var searchJob: Job? = null
 
     val cart = cartRepository.getCart()

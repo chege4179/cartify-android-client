@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.peterchege.cartify.core.util.Resource
 import com.peterchege.cartify.presentation.components.CartIconComponent
 import com.peterchege.cartify.presentation.components.CategoryCard
 import com.peterchege.cartify.core.util.Screens
@@ -57,13 +58,13 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
+    val homeScreenState = viewModel.productsUseCase.collectAsStateWithLifecycle()
 
     val cart = viewModel.cart.collectAsStateWithLifecycle()
     Scaffold(
         scaffoldState = scaffoldState,
         modifier = Modifier
-            .fillMaxSize()
-            ,
+            .fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = {
@@ -71,24 +72,22 @@ fun HomeScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
-                            .fillMaxHeight()
-                        ,
+                            .fillMaxHeight(),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
 
-                    ) {
+                        ) {
                         BasicTextField(
                             modifier = Modifier
                                 .fillMaxWidth(0.87f)
                                 .fillMaxHeight()
                                 .background(Color.White)
                                 .padding(top = 5.dp)
-                                .padding(horizontal = 5.dp)
-                            ,
+                                .padding(horizontal = 5.dp),
 
 
                             value = viewModel.searchTerm.value,
-                            onValueChange ={
+                            onValueChange = {
                                 viewModel.onChangeSearchTerm(
                                     query = it,
                                     scaffoldState = scaffoldState,
@@ -100,7 +99,8 @@ fun HomeScreen(
                             textStyle = TextStyle(
                                 color = Color.Black,
                                 fontSize = 19.sp,
-                                textAlign = TextAlign.Start)
+                                textAlign = TextAlign.Start
+                            )
 
                         )
                         Row(
@@ -110,83 +110,92 @@ fun HomeScreen(
                                 .fillMaxHeight(),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center,
-                        ){
+                        ) {
                             CartIconComponent(
                                 navController = navHostController,
-                                cartCount = cart.value.size)
+                                cartCount = cart.value.size
+                            )
                         }
 
 
                     }
 
-                }
-                ,
+                },
                 backgroundColor = MaterialTheme.colors.primary)
         }
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            if (viewModel.isLoading.value){
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
-            if (viewModel.isError.value){
-                LaunchedEffect(scaffoldState.snackbarHostState){
-                    scaffoldState.snackbarHostState.showSnackbar(
-                        message = viewModel.msg.value
-                    )
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            when (homeScreenState.value) {
+                is Resource.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 10.dp)
-                    .padding(top = 10.dp)
-            ) {
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 5.dp)
-                ){
-                    items(categories){ category ->
-                        CategoryCard(navController = navController, categoryItem = category)
-                        Spacer(modifier = Modifier.width(10.dp))
-
-                    }
-
-                }
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    Modifier.background(MaterialTheme.colors.background)
-                ){
-                    items(viewModel.products.value){ product ->
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
+                is Resource.Success -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 10.dp)
+                            .padding(top = 10.dp)
+                    ) {
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 5.dp)
                         ) {
-                            ProductCard(
-                                product = product,
-                                onNavigateToProductScreen = { id ->
-                                    navHostController.navigate(Screens.PRODUCT_SCREEN + "/${id}")
+                            items(categories) { category ->
+                                CategoryCard(navController = navController, categoryItem = category)
+                                Spacer(modifier = Modifier.width(10.dp))
 
-                                },
-                                onAddToWishList = {
-                                    viewModel.addToWishList(it, scaffoldState = scaffoldState)
-                                },
-                                removeFromWishList = {
+                            }
 
-                                },
-                                isWishList = false
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
                         }
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            Modifier.background(MaterialTheme.colors.background)
+                        ) {
+                            items(viewModel.products.value) { product ->
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    ProductCard(
+                                        product = product,
+                                        onNavigateToProductScreen = { id ->
+                                            navHostController.navigate(Screens.PRODUCT_SCREEN + "/${id}")
+
+                                        },
+                                        onAddToWishList = {
+                                            viewModel.addToWishList(
+                                                it,
+                                                scaffoldState = scaffoldState
+                                            )
+                                        },
+                                        removeFromWishList = {
+
+                                        },
+                                        isWishList = false
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                            }
+
+                        }
+
                     }
 
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
+                is Resource.Error -> {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = homeScreenState.value.message ?: "An unexpected error occurred"
+                    )
 
+                }
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-
         }
+
+
     }
 
 }

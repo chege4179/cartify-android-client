@@ -76,13 +76,17 @@ fun ProfileScreen(
         }else if(user.value!!._id ==""){
             NoLoggedInUserScreenComponent(navHostController = navHostController)
         }  else {
-            user.value.let {
+            user.value.let { user ->
                 Column(
-                    modifier = Modifier.padding(10.dp)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
                 ) {
-                    if (it != null) {
-                        Text(text = it.fullname)
-                        Text(text = it.email)
+                    if (user != null) {
+                        Text(text = user.fullname)
+                        Text(text = user.email)
 
 
                         Button(
