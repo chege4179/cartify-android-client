@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.peterchege.cartify.presentation.components.CartIconComponent
 import com.peterchege.cartify.presentation.components.CartItemCard
@@ -41,6 +42,9 @@ fun CartScreen(
 ) {
     val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
+
+    val cart = viewModel.cart.collectAsStateWithLifecycle()
+    val user = viewModel.user.collectAsStateWithLifecycle(initialValue = null)
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
@@ -61,7 +65,7 @@ fun CartScreen(
                         )
                         CartIconComponent(
                             navController = navController,
-                            cartCount =viewModel.cart.value.size)
+                            cartCount =cart.value.size)
                     }
                 }
             )
@@ -77,7 +81,7 @@ fun CartScreen(
                     .fillMaxSize()
                     .padding(10.dp)
             ){
-                items(viewModel.cart.value){ cartItem ->
+                items(items = cart.value){ cartItem ->
                     CartItemCard(
                         cartItem = cartItem,
                         onProductNavigate ={
@@ -99,11 +103,11 @@ fun CartScreen(
                 }
                 
                 item {
-                    if(viewModel.cart.value.isNotEmpty()){
-                        val sum = viewModel.cart.value.map { it.quantity * it.price }.sum()
+                    if(cart.value.isNotEmpty()){
+                        val sum = cart.value.map { it.quantity * it.price }.sum()
                         SubtotalCard(
                             total = sum,
-                            isLoggedIn = viewModel.user.value != null ,
+                            isLoggedIn = user.value != null ,
                             proceedToCheckOut ={
                                 viewModel.proceedToOrder(
                                     total = it,

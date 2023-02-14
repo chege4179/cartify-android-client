@@ -21,7 +21,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.peterchege.cartify.core.room.entities.CartItem
 import com.peterchege.cartify.data.CartRepositoryImpl
+import com.peterchege.cartify.domain.repository.CartRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.IOException
 import javax.inject.Inject
@@ -29,29 +32,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
-    private val cartRepositoryImpl: CartRepositoryImpl,
+    private val cartRepository: CartRepository,
 
-    ) :ViewModel(){
-    private val _cart = mutableStateOf<List<CartItem>>(emptyList())
-    val cart : State<List<CartItem>> = _cart
+    ) : ViewModel() {
 
-    init {
-        getCart()
-    }
+    val cart = cartRepository.getCart()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = emptyList()
+        )
 
-
-    private fun getCart(){
-        viewModelScope.launch {
-            try {
-                val cartItems = cartRepositoryImpl.getCart().collect {
-                    _cart.value = it
-                }
-
-            }catch (e: IOException){
-
-            }
-        }
-
-    }
 
 }

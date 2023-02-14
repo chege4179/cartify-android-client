@@ -51,9 +51,12 @@ class CartScreenViewModel @Inject constructor(
             initialValue = null
         )
 
-    private val _cart = mutableStateOf<List<CartItem>>(emptyList())
-    val cart: State<List<CartItem>> = _cart
-
+    val cart = cartRepository.getCart()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = emptyList()
+        )
     private val _subtotal = mutableStateOf<Int>(0)
     val subtotal: State<Int> = _subtotal
 
@@ -61,7 +64,7 @@ class CartScreenViewModel @Inject constructor(
     val isLoading: State<Boolean> = _isLoading
 
     init {
-        getCart()
+
     }
 
     fun removeFromCart(id: String) {
@@ -99,19 +102,7 @@ class CartScreenViewModel @Inject constructor(
         }
     }
 
-    private fun getCart() {
-        viewModelScope.launch {
-            try {
-                val cartItems = cartRepository.getCart().collect {
-                    _cart.value = it
-                }
 
-            } catch (e: IOException) {
-
-            }
-        }
-
-    }
 
     fun proceedToOrder(total: Long, scaffoldState: ScaffoldState, context: Context) {
         val newOrder = user.value?.let {

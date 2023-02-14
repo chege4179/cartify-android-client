@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.peterchege.cartify.presentation.components.CartIconComponent
 import com.peterchege.cartify.presentation.components.CategoryCard
@@ -56,6 +57,8 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
+
+    val cart = viewModel.cart.collectAsStateWithLifecycle()
     Scaffold(
         scaffoldState = scaffoldState,
         modifier = Modifier
@@ -101,13 +104,16 @@ fun HomeScreen(
 
                         )
                         Row(
-                            modifier = Modifier.fillMaxSize().fillMaxWidth().fillMaxHeight(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .fillMaxWidth()
+                                .fillMaxHeight(),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center,
                         ){
                             CartIconComponent(
                                 navController = navHostController,
-                                cartCount = viewModel.cartCount.value)
+                                cartCount = cart.value.size)
                         }
 
 

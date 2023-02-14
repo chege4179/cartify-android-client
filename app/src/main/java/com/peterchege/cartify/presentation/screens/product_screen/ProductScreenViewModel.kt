@@ -27,6 +27,8 @@ import com.peterchege.cartify.domain.mappers.toCartItem
 import com.peterchege.cartify.domain.repository.CartRepository
 import com.peterchege.cartify.domain.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -41,6 +43,14 @@ class ProductScreenViewModel @Inject constructor(
     private val cartRepository: CartRepository,
 ) :ViewModel() {
 
+
+    val cart = cartRepository.getCart()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = emptyList()
+        )
+
     private val _errorMsg = mutableStateOf("")
     val errorMsg:State<String> =_errorMsg
 
@@ -53,27 +63,15 @@ class ProductScreenViewModel @Inject constructor(
     private val _product = mutableStateOf<Product?>(null)
     val product : State<Product?> = _product
 
-    private val _cartCount = mutableStateOf(0)
-    val cartCount:State<Int> = _cartCount
+
 
     init {
-        getCartCount()
+
         savedStateHandle.get<String>("id")?.let {
             getProductById(it)
         }
     }
-    private fun getCartCount(){
-        viewModelScope.launch {
-            try {
-                cartRepository.getCart().collect {
-                    _cartCount.value = it.size
-                }
 
-            }catch (e:IOException){
-
-            }
-        }
-    }
     fun addToCart(){
         val newCartItem = _product.value?.toCartItem()
         viewModelScope.launch {

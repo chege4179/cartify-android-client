@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.google.accompanist.pager.*
 import com.peterchege.cartify.presentation.components.CartIconComponent
@@ -40,6 +41,7 @@ fun OrderScreen(
     navController: NavController,
     viewModel: OrderViewModel = hiltViewModel()
 ) {
+    val cart = viewModel.cart.collectAsStateWithLifecycle()
     val scaffoldState = rememberScaffoldState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -62,7 +64,7 @@ fun OrderScreen(
                         )
                         CartIconComponent(
                             navController = navController,
-                            cartCount =viewModel.cart.value.size)
+                            cartCount =cart.value.size)
                     }
                 }
             )

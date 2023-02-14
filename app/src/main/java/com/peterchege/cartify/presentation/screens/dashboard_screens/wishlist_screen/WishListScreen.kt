@@ -28,6 +28,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.peterchege.cartify.presentation.components.CartIconComponent
 import com.peterchege.cartify.presentation.components.ProductCard
@@ -43,6 +45,8 @@ fun WishListScreen(
     wishListScreenViewModel: WishListScreenViewModel = hiltViewModel()
 ) {
     val scaffoldState = rememberScaffoldState()
+
+    val cart = wishListScreenViewModel.cart.collectAsStateWithLifecycle()
     Scaffold(
         scaffoldState=scaffoldState,
         modifier = Modifier.fillMaxSize(),
@@ -64,7 +68,7 @@ fun WishListScreen(
                         )
                         CartIconComponent(
                             navController = navController,
-                            cartCount =wishListScreenViewModel.cartItems.value.size
+                            cartCount =cart.value.size
                         )
                     }
                 }

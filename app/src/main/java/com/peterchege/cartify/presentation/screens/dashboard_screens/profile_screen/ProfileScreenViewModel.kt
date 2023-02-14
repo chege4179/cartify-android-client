@@ -51,9 +51,6 @@ class ProfileScreenViewModel @Inject constructor(
 
 
 
-    init {
-
-    }
 
 
 
