@@ -23,23 +23,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
-    primary = Purple200,
-    primaryVariant = Purple700,
-    secondary = Teal200
+    primary = Color.White,
+    primaryVariant = WhiteColorVariant,
+
+    background = BlueColor,
+    onBackground = BlueColorVariant
 )
 
 private val LightColorPalette = lightColors(
-    primary = Purple500,
-    primaryVariant = Purple700,
-    secondary = Teal200,
-    background = Grey100,
-//    surface = Color.White,
-//    onPrimary = Color.White,
-//    onSecondary = Color.Black,
-//    onBackground = Color.Black,
-//    onSurface = Color.Black,
+    //text
+    primary = Color.Black,
+    primaryVariant = BlackColorVariant,
 
+    //background
+    background = Color.White,
+    onBackground = WhiteColorVariant
 )
+
 
 @Composable
 fun CartifyTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {

@@ -53,7 +53,7 @@ fun BottomNavBar(
     val backStackEntry = navController.currentBackStackEntryAsState()
     BottomNavigation(
         modifier = modifier,
-        backgroundColor = Color.DarkGray,
+        backgroundColor = MaterialTheme.colors.background,
         elevation = 5.dp
     ) {
         items.forEach{ item ->
@@ -66,12 +66,10 @@ fun BottomNavBar(
                 icon = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         if (item.badgeCount > 0){
-
                             Icon(
                                 imageVector = item.icon,
                                 contentDescription =item.name
                             )
-
                         }else{
                             Icon(
                                 imageVector = item.icon,

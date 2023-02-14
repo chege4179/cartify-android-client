@@ -16,12 +16,14 @@
 package com.peterchege.cartify.presentation.screens.dashboard_screens.profile_screen
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,6 +48,7 @@ fun ProfileScreen(
             .fillMaxSize(),
         topBar = {
             TopAppBar(
+                backgroundColor = MaterialTheme.colors.onBackground,
                 title = {
                     Row(
                         modifier = Modifier
@@ -58,7 +61,8 @@ fun ProfileScreen(
                         ) {
                         Text(
                             modifier = Modifier.fillMaxWidth(0.87f),
-                            text = "Profile"
+                            text = "Profile",
+                            style = TextStyle(color = MaterialTheme.colors.primary)
                         )
                         CartIconComponent(
                             navController = navHostController,
@@ -84,9 +88,18 @@ fun ProfileScreen(
                     verticalArrangement = Arrangement.Top
                 ) {
                     if (user != null) {
-                        Text(text = user.fullname)
-                        Text(text = user.email)
-                        Text(text = themeState.value)
+                        Text(
+                            text = user.fullname,
+                            style = TextStyle(color = MaterialTheme.colors.primary)
+                        )
+                        Text(
+                            text = user.email,
+                            style = TextStyle(color = MaterialTheme.colors.primary)
+                        )
+                        Text(
+                            text = themeState.value,
+                            style = TextStyle(color = MaterialTheme.colors.primary)
+                        )
 
 
                         Switch(
@@ -100,10 +113,16 @@ fun ProfileScreen(
                                 }
                             })
                         Button(
+                            colors = ButtonDefaults.buttonColors(
+                                backgroundColor = MaterialTheme.colors.onBackground
+                            ),
                             onClick = {
                                 viewModel.logoutUser()
                             }) {
-                            Text(text = "Log Out")
+                            Text(
+                                text = "Log Out",
+                                style = TextStyle(color = MaterialTheme.colors.primary)
+                            )
 
                         }
                     }

@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.peterchege.cartify.presentation.theme
+package com.peterchege.cartify.presentation
 
-import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.ViewModel
+import com.peterchege.cartify.domain.repository.SettingsRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
-val Grey100 = Color(0xFFF3F4F6)
-val Grey200 = Color(0xFFE5E7EB)
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val settingsRepository: SettingsRepository
+) :ViewModel(){
 
-val WhiteColorVariant = Color(0xFFEBEDF1)
-val BlueColor = Color(0xFF0B1121)
-val BlueColorVariant = Color(0xFF151E36)
-val BlackColorVariant = Color(0xFF010511)
+    val theme = settingsRepository.getTheme()
 
-
+}

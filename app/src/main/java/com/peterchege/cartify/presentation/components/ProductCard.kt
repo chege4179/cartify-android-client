@@ -20,9 +20,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Delete
@@ -30,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
@@ -42,25 +41,28 @@ import com.peterchege.cartify.presentation.theme.Grey200
 @Composable
 fun ProductCard(
     product: Product,
-    onNavigateToProductScreen:(String) -> Unit,
-    onAddToWishList:(Product) -> Unit,
-    removeFromWishList:(Product) -> Unit,
-    isWishList:Boolean
+    onNavigateToProductScreen: (String) -> Unit,
+    onAddToWishList: (Product) -> Unit,
+    removeFromWishList: (Product) -> Unit,
+    isWishList: Boolean
 
 ) {
     Card(
         modifier = Modifier
             .padding(5.dp)
             .fillMaxWidth()
+            .background(color = MaterialTheme.colors.onBackground)
 
             .clickable {
                 onNavigateToProductScreen(product._id)
-            }
-        ,
+            },
 
-    ) {
+        ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = MaterialTheme.colors.onBackground)
+            ,
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -85,39 +87,51 @@ fun ProductCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
 
-            ) {
+                ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(0.85f),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(text = product.name)
-                    Text(text = "Ksh ${product.price}/=")
+                    Text(
+                        text = product.name,
+                        style = TextStyle(color = MaterialTheme.colors.primary)
+                    )
+                    Text(
+                        text = "Ksh ${product.price}/=",
+                        style = TextStyle(color = MaterialTheme.colors.primary)
+                    )
 
                 }
                 Box(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    if (isWishList){
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = "Remove from wishlist",
-                            modifier = Modifier
-                                .clickable {
-                                    removeFromWishList(product)
-                                }
+                    if (isWishList) {
+                        IconButton(onClick = {
+                            removeFromWishList(product)
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Remove from wishlist",
+                                tint = MaterialTheme.colors.primary
 
-                        )
-                    }else{
-                        Icon(
-                            Icons.Default.BookmarkBorder,
-                            contentDescription = "Add to wishlist",
-                            modifier = Modifier
-                                .clickable {
-                                    onAddToWishList(product)
-                                }
+                            )
+                        }
 
-                        )
+                    } else {
+                        IconButton(
+                            onClick = {
+                                onAddToWishList(product)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.BookmarkBorder,
+                                contentDescription = "Add to wishlist",
+                                tint = MaterialTheme.colors.primary
+
+                            )
+                        }
+
                     }
 
                 }

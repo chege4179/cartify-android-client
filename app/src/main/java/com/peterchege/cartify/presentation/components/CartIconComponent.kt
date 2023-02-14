@@ -55,9 +55,10 @@ fun CartIconComponent(
                     }
                 }) {
                     Icon(
-                        Icons.Filled.AddShoppingCart,
+                        imageVector = Icons.Filled.AddShoppingCart,
                         contentDescription = "Favorite",
-                        Modifier.size(26.dp)
+                        modifier = Modifier.size(26.dp),
+                        tint = MaterialTheme.colors.primary
                     )
                 }
 

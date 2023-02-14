@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -65,6 +66,7 @@ fun ProductScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
+                backgroundColor = MaterialTheme.colors.onBackground,
                 title = {
                     viewModel.product.value?.let {
                         Row(
@@ -78,7 +80,8 @@ fun ProductScreen(
                             ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(0.87f),
-                                text = it.name
+                                text = it.name,
+                                style = TextStyle(color = MaterialTheme.colors.primary)
                             )
                             CartIconComponent(
                                 navController = navHostController,
@@ -136,7 +139,8 @@ fun ProductScreen(
                                         .padding(horizontal = 3.dp),
                                     textAlign = TextAlign.Start,
                                     fontSize = 17.sp,
-                                    text = "${image + 1}/${product.images.size}"
+                                    text = "${image + 1}/${product.images.size}",
+                                    style = TextStyle(color = MaterialTheme.colors.primary)
                                 )
                             }
 
@@ -169,44 +173,55 @@ fun ProductScreen(
                             text = product.name,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Start,
-                            fontSize = 20.sp
+                            fontSize = 20.sp,
+                            style = TextStyle(color = MaterialTheme.colors.primary)
                         )
                         Text(
                             modifier = Modifier.fillMaxWidth(),
                             fontWeight = FontWeight.Bold,
                             text = "Ksh ${product.price} /=",
                             fontSize = 25.sp,
+                            style = TextStyle(color = MaterialTheme.colors.primary)
                         )
                         Text(
                             text = "Description :",
+                            style = TextStyle(color = MaterialTheme.colors.primary)
                         )
                         Text(
-                            modifier = Modifier
-                                .fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth(),
                             text = product.description,
+                            style = TextStyle(color = MaterialTheme.colors.primary)
 
                             )
                         Spacer(modifier = Modifier.height(10.dp))
                         Button(
+                            colors = ButtonDefaults.buttonColors(
+                                backgroundColor = MaterialTheme.colors.onBackground
+                            ),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(70.dp),
+                                .height(50.dp),
                             shape = RoundedCornerShape(20),
                             onClick = {
                             viewModel.addToCart()
 
                         }) {
-                            Text(text = "Add To Cart")
+                            Text(
+                                text = "Add To Cart",
+                                style = TextStyle(color = MaterialTheme.colors.primary)
+                            )
 
                         }
                         Spacer(modifier = Modifier.height(15.dp))
 
-                        OutlinedButton(
+                        Button(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp)
-                                .background(Grey100)
                             ,
+                            colors = ButtonDefaults.buttonColors(
+                                backgroundColor = MaterialTheme.colors.onBackground
+                            ),
                             shape = RoundedCornerShape(20),
                             onClick = {
                             viewModel.addToWishList(
@@ -215,15 +230,13 @@ fun ProductScreen(
                             )
 
                         }) {
-                            Text(text = "Add To WishList")
+                            Text(
+                                text = "Add To WishList",
+                                style = TextStyle(color = MaterialTheme.colors.primary)
+                            )
 
                         }
-
-
                     }
-                }
-                item {
-
                 }
             }
         }

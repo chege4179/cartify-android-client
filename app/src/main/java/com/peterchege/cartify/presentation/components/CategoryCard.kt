@@ -67,6 +67,7 @@ fun CategoryCard(
                 text = categoryItem.name,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp,
+                style = TextStyle(color = MaterialTheme.colors.primary)
             )
         }
     }

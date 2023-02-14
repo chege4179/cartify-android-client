@@ -121,7 +121,7 @@ fun HomeScreen(
                     }
 
                 },
-                backgroundColor = MaterialTheme.colors.primary)
+                backgroundColor = MaterialTheme.colors.onBackground)
         }
     ) {
         Box(
@@ -129,12 +129,16 @@ fun HomeScreen(
         ) {
             when (homeScreenState.value) {
                 is Resource.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colors.primary,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
                 is Resource.Success -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
+                            .background(color = MaterialTheme.colors.background)
                             .padding(horizontal = 10.dp)
                             .padding(top = 10.dp)
                     ) {
