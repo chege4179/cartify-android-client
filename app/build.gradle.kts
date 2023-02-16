@@ -148,7 +148,7 @@ dependencies {
     //paging 3
     implementation ("androidx.paging:paging-runtime-ktx:3.1.1")
     implementation ("androidx.paging:paging-compose:1.0.0-alpha18")
-    implementation ("androidx.profileinstaller:profileinstaller:1.3.0-alpha02")
+    implementation ("androidx.profileinstaller:profileinstaller:1.3.0-beta01")
 
 
 

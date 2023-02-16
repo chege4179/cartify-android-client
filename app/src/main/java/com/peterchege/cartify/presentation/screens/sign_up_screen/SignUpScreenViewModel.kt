@@ -25,8 +25,11 @@ import androidx.navigation.NavController
 import com.peterchege.cartify.core.api.CartifyApi
 import com.peterchege.cartify.core.api.requests.SignUpUser
 import com.peterchege.cartify.core.util.Screens
+import com.peterchege.cartify.core.util.UiEvent
 import com.peterchege.cartify.core.util.helperFunctions
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -36,10 +39,9 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpScreenViewModel @Inject constructor(
     private val api: CartifyApi
-
-):ViewModel() {
+) : ViewModel() {
     private var _isLoading = mutableStateOf(false)
-    var isLoading : State<Boolean> = _isLoading
+    var isLoading: State<Boolean> = _isLoading
 
     private var _fullNameState = mutableStateOf("")
     var fullNameState: State<String> = _fullNameState
@@ -54,45 +56,51 @@ class SignUpScreenViewModel @Inject constructor(
     var phoneNumberState: State<String> = _phoneNumberState
 
     private var _passwordState = mutableStateOf("")
-    var passwordState: State<String> =  _passwordState
+    var passwordState: State<String> = _passwordState
 
 
     private var _confirmPasswordState = mutableStateOf("")
-    var confirmPasswordState: State<String> =  _confirmPasswordState
+    var confirmPasswordState: State<String> = _confirmPasswordState
+
+    private val _eventFlow = MutableSharedFlow<UiEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
 
 
-    fun OnChangeFullname(text:String){
+    fun OnChangeFullname(text: String) {
         _fullNameState.value = text
     }
-    fun OnChangeAddress(text:String){
+
+    fun OnChangeAddress(text: String) {
         _addressState.value = text
     }
-    fun OnChangePassword(text:String){
-        _passwordState.value =  text
+
+    fun OnChangePassword(text: String) {
+        _passwordState.value = text
 
     }
-    fun OnChangeConfirmPassword(text:String){
+
+    fun OnChangeConfirmPassword(text: String) {
         _confirmPasswordState.value = text
 
     }
-    fun OnChangeEmail(text:String){
-        _emailState.value =  text
+
+    fun OnChangeEmail(text: String) {
+        _emailState.value = text
 
     }
-    fun OnChangePhoneNumber(text:String){
+
+    fun OnChangePhoneNumber(text: String) {
         _phoneNumberState.value = text
 
     }
-    fun signUpUser(navController: NavController,scaffoldState: ScaffoldState,context: Context){
 
+    fun signUpUser() {
         viewModelScope.launch {
             _isLoading.value = true
-            if(_passwordState.value != _confirmPasswordState.value){
-                scaffoldState.snackbarHostState.showSnackbar(
-                    message = "Passwords do not match"
-                )
+            if (_passwordState.value != _confirmPasswordState.value) {
+                _eventFlow.emit(UiEvent.ShowSnackbar(uiText = "Passwords don't match"))
 
-            }else{
+            } else {
                 try {
                     val signUpUser = SignUpUser(
                         fullname = _fullNameState.value,
@@ -101,34 +109,29 @@ class SignUpScreenViewModel @Inject constructor(
                         password = _passwordState.value,
                         address = _addressState.value
                     )
-                    if(helperFunctions.hasInternetConnection(context)){
-                        val response = api.signUpUser(signUpUser = signUpUser)
-                        _isLoading.value = false
-                        scaffoldState.snackbarHostState.showSnackbar(
-                            message = response.msg
-                        )
-                        if (response.success){
-                            navController.navigate(Screens.LOGIN_SCREEN)
+                    val response = api.signUpUser(signUpUser = signUpUser)
+                    _isLoading.value = false
+                    _eventFlow.emit(UiEvent.ShowSnackbar(uiText = response.msg))
+                    if (response.success) {
+                        _eventFlow.emit(UiEvent.Navigate(route = Screens.LOGIN_SCREEN))
 
-                        }
-                    }else{
-                        _isLoading.value = false
-                        scaffoldState.snackbarHostState.showSnackbar(
-                            message = "No Internet Connection...."
-                        )
                     }
-
-
-                }catch (e:HttpException){
+                } catch (e: HttpException) {
                     _isLoading.value = false
-                    scaffoldState.snackbarHostState.showSnackbar(
-                        message = "Server down... Please try again later"
+                    _eventFlow.emit(
+                        UiEvent.ShowSnackbar(
+                            uiText = e.localizedMessage ?: "Server down... Please try again later"
+                        )
                     )
-                }catch (e:IOException){
+
+                } catch (e: IOException) {
                     _isLoading.value = false
-                    scaffoldState.snackbarHostState.showSnackbar(
-                        message = "An unexpected error occurred"
+                    _eventFlow.emit(
+                        UiEvent.ShowSnackbar(
+                            uiText = e.localizedMessage ?: "An unexpected error occurred"
+                        )
                     )
+
 
                 }
             }

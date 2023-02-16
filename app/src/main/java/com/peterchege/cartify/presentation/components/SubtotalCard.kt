@@ -17,13 +17,12 @@ package com.peterchege.cartify.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,10 +41,13 @@ fun SubtotalCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
-            .background(Color.White)
+
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(10.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colors.onBackground)
+                .padding(10.dp),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -54,24 +56,28 @@ fun SubtotalCard(
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 19.sp,
                 fontWeight = FontWeight.Bold,
+                style = TextStyle(color = MaterialTheme.colors.primary),
             )
             Text(
                 text = "VAT: ${(0.16 * total).toString()}",
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
+                style = TextStyle(color = MaterialTheme.colors.primary),
             )
             Text(
                 text = "Shipping Fee: 1000/=",
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
+                style = TextStyle(color = MaterialTheme.colors.primary),
             )
             Text(
                 text = "Full Total: ${finaltotal.toString()}",
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
+                style = TextStyle(color = MaterialTheme.colors.primary),
             )
             if (isLoggedIn){
                 Button(
@@ -79,19 +85,26 @@ fun SubtotalCard(
                         .fillMaxWidth()
                         .height(50.dp)
                     ,
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = MaterialTheme.colors.background
+                    ),
                     onClick = {
                         proceedToCheckOut(finaltotal)
 
                     }
                 ) {
-                    Text("Check Out")
+                    Text(
+                        text = "Check Out",
+                        style = TextStyle(color = MaterialTheme.colors.primary),
+                    )
                 }
             }else{
                 Text(
+                    text="Log In to proceed to check out",
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.SemiBold,
-                    text="Log In to proceed to check out",
                     modifier = Modifier.fillMaxWidth(),
+                    style = TextStyle(color = MaterialTheme.colors.primary),
                 )
             }
         }

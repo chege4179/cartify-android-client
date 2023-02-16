@@ -25,6 +25,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -39,7 +40,7 @@ import kotlinx.coroutines.flow.collectLatest
 fun LoginScreen(
     navController: NavController,
     viewModel: LoginScreenViewModel = hiltViewModel()
-){
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val scaffoldState = rememberScaffoldState()
     val context = LocalContext.current
@@ -61,14 +62,13 @@ fun LoginScreen(
         scaffoldState = scaffoldState,
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp)
-        ,
+            .padding(20.dp),
 
-    ) {
+        ) {
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
-            if (viewModel.isLoading.value){
+            if (viewModel.isLoading.value) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
 
             }
@@ -82,43 +82,69 @@ fun LoginScreen(
 
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = viewModel.emailState.value ,
-                    onValueChange ={
+                    value = viewModel.emailState.value,
+                    onValueChange = {
                         viewModel.OnChangeEmail(it)
-
                     },
-                    label = { Text("Email Address") }
+                    textStyle = TextStyle(
+                        color = MaterialTheme.colors.primary
+                    ),
+                    label = {
+                        Text(
+                            text = "Email Address",
+                            style = TextStyle(color = MaterialTheme.colors.primary),
+                        )
+                    }
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(15.dp))
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = viewModel.passwordState.value ,
-                    onValueChange ={
+                    value = viewModel.passwordState.value,
+                    onValueChange = {
                         viewModel.OnChangePassword(it)
 
                     },
-                    label = { Text("Password") }
+                    textStyle = TextStyle(
+                        color = MaterialTheme.colors.primary
+                    ),
+                    label = {
+                        Text(
+                            text = "Password",
+                            style = TextStyle(color = MaterialTheme.colors.primary),
+                        )
+                    }
                 )
+                Spacer(modifier = Modifier.height(15.dp))
                 Button(
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = MaterialTheme.colors.onBackground
+                    ),
                     onClick = {
                         keyboardController?.hide()
-                        if (helperFunctions.hasInternetConnection(context = context)){
+                        if (helperFunctions.hasInternetConnection(context = context)) {
                             viewModel.loginUser()
-                        }else{
+                        } else {
                             viewModel.showNoInternetSnackBar()
                         }
 
                     }
                 )
                 {
-                    Text("Login")
+                    Text(
+                        text = "Login",
+                        style = TextStyle(color = MaterialTheme.colors.primary),
+                    )
                 }
                 Spacer(modifier = Modifier.height(30.dp))
                 TextButton(onClick = {
                     navController.navigate(Screens.SIGN_UP_SCREEN)
 
                 }) {
-                    Text(text = "Don't have an account yet...Sign Up")
+                    Text(
+                        text = "Don't have an account yet...Sign Up",
+                        style = TextStyle(color = MaterialTheme.colors.primary),
+                    )
                 }
             }
         }

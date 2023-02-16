@@ -17,10 +17,12 @@ package com.peterchege.cartify.presentation.screens.dashboard_screens.orders_scr
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -28,6 +30,11 @@ fun PastOrdersTab(){
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) {
+        Text(
+            text = "Past Orders Tab",
+            style = TextStyle(color = MaterialTheme.colors.primary),
+
+        )
 
 
     }

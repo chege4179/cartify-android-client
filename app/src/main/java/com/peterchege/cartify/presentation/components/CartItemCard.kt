@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 
 import androidx.compose.ui.unit.dp
@@ -47,7 +48,6 @@ fun CartItemCard(
             .padding(vertical = 10.dp)
             .fillMaxWidth()
             .height(170.dp)
-            .background(Color.White)
             .clickable {
                 onProductNavigate(cartItem.id)
             },
@@ -56,7 +56,10 @@ fun CartItemCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 10.dp),
+                .background(color = MaterialTheme.colors.onBackground)
+                .padding(vertical = 10.dp)
+
+            ,
 
             ) {
             Row(
@@ -86,16 +89,19 @@ fun CartItemCard(
                     Text(
                         text = cartItem.name,
                         fontSize = 20.sp,
+                        style = TextStyle(color = MaterialTheme.colors.primary),
                     )
                     Text(
                         text = "Ksh ${cartItem.price} /=",
                         fontSize = 21.sp,
                         fontWeight = FontWeight.Bold,
+                        style = TextStyle(color = MaterialTheme.colors.primary),
                     )
                     Text(
                         text = "Subtotal : Ksh ${cartItem.quantity * cartItem.price} /=",
                         fontSize = 19.sp,
                         fontWeight = FontWeight.Bold,
+                        style = TextStyle(color = MaterialTheme.colors.primary),
                     )
 
                 }
@@ -138,7 +144,8 @@ fun CartItemCard(
 
                 }
                 Text(
-                    text = cartItem.quantity.toString()
+                    text = cartItem.quantity.toString(),
+                    style = TextStyle(color = MaterialTheme.colors.primary),
                 )
                 IconButton(
                     onClick = {

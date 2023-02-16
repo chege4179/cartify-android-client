@@ -26,7 +26,10 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -52,6 +55,7 @@ fun WishListScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
+                backgroundColor = MaterialTheme.colors.onBackground,
                 title = {
                     Row(
                         modifier = Modifier
@@ -64,7 +68,10 @@ fun WishListScreen(
                         ) {
                         Text(
                             modifier = Modifier.fillMaxWidth(0.87f),
-                            text = "My WishList"
+                            text = "My WishList",
+                            style = TextStyle(color = MaterialTheme.colors.primary),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
                         )
                         CartIconComponent(
                             navController = navController,

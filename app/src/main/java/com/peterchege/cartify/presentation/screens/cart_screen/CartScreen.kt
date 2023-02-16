@@ -24,7 +24,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -49,6 +52,7 @@ fun CartScreen(
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
+                backgroundColor = MaterialTheme.colors.onBackground,
                 title = {
                     Row(
                         modifier = Modifier
@@ -61,7 +65,10 @@ fun CartScreen(
                         ) {
                         Text(
                             modifier = Modifier.fillMaxWidth(0.87f),
-                            text = "My Cart"
+                            text = "My Cart",
+                            style = TextStyle(color = MaterialTheme.colors.primary),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
                         )
                         CartIconComponent(
                             navController = navController,
@@ -118,7 +125,10 @@ fun CartScreen(
                             }
                         )
                     }else{
-                        Text(text = "Your cart is empty")
+                        Text(
+                            text = "Your cart is empty",
+                            style = TextStyle(color = MaterialTheme.colors.primary),
+                        )
                     }
                 }
 

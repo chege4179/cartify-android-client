@@ -24,7 +24,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -48,6 +51,7 @@ fun OrderScreen(
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
+                backgroundColor = MaterialTheme.colors.onBackground,
                 title = {
                     Row(
                         modifier = Modifier
@@ -60,7 +64,10 @@ fun OrderScreen(
                         ) {
                         Text(
                             modifier = Modifier.fillMaxWidth(0.87f),
-                            text = "My Orders"
+                            text = "My Orders",
+                            style = TextStyle(color = MaterialTheme.colors.primary),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
                         )
                         CartIconComponent(
                             navController = navController,
@@ -97,19 +104,21 @@ fun Tabs(pagerState: PagerState) {
 
     TabRow(
         selectedTabIndex = pagerState.currentPage,
-        backgroundColor = MaterialTheme.colors.primary,
+        backgroundColor = MaterialTheme.colors.onBackground,
         contentColor = Color.White,
         divider = {
             TabRowDefaults.Divider(
                 thickness = 2.dp,
-                color = Color.Green
+                color = MaterialTheme.colors.onBackground
             )
         },
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(
-                Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
+                modifier = Modifier.pagerTabIndicatorOffset(
+                    pagerState = pagerState,
+                    tabPositions =  tabPositions),
                 height = 2.dp,
-                color = Color.White
+                color = MaterialTheme.colors.primary
             )
         }
     ) {
@@ -117,7 +126,8 @@ fun Tabs(pagerState: PagerState) {
             Tab(
                 text = {
                     Text(
-                        list[index],
+                        text = list[index],
+                        style = TextStyle(color = MaterialTheme.colors.primary),
                         color = if (pagerState.currentPage == index) Color.White else Color.LightGray
                     )
                 },
@@ -135,7 +145,7 @@ fun Tabs(pagerState: PagerState) {
 @ExperimentalPagerApi
 @Composable
 fun TabsContent(pagerState: PagerState) {
-    HorizontalPager(state = pagerState ,count =2) { page ->
+    HorizontalPager(state = pagerState ,count = 2) { page ->
         when(page) {
             0 -> PendingOrdersTab()
             1 -> PastOrdersTab()

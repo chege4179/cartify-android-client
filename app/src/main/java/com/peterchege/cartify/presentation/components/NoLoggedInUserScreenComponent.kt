@@ -17,10 +17,13 @@ package com.peterchege.cartify.presentation.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.peterchege.cartify.core.util.Screens
@@ -30,35 +33,44 @@ fun NoLoggedInUserScreenComponent(
     navHostController: NavController
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(text = "You have not logged in yet")
-            Spacer(modifier = Modifier.height(10.dp))
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    navHostController.navigate(Screens.LOGIN_SCREEN)
-                }) {
-                Text(text = "Login")
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    navHostController.navigate(Screens.SIGN_UP_SCREEN)
-                }) {
-                Text(text = "Sign Up")
-            }
+        Text(
+            text = "You have not logged in yet",
+            style = TextStyle(color = MaterialTheme.colors.primary),
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Button(
+            modifier = Modifier.fillMaxWidth().height(50.dp),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = MaterialTheme.colors.onBackground
+            ),
+            onClick = {
+                navHostController.navigate(Screens.LOGIN_SCREEN)
+            }) {
+            Text(
+                text = "Login",
+                style = TextStyle(color = MaterialTheme.colors.primary),
+            )
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Button(
+            modifier = Modifier.fillMaxWidth().height(50.dp),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = MaterialTheme.colors.onBackground
+            ),
+            onClick = {
+                navHostController.navigate(Screens.SIGN_UP_SCREEN)
+            }) {
+            Text(
+                text = "Sign Up",
+                style = TextStyle(color = MaterialTheme.colors.primary),
 
+                )
         }
 
     }
