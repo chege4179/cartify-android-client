@@ -18,6 +18,9 @@ package com.peterchege.cartify.ui
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -39,6 +42,9 @@ fun Navigation(
     NavHost(
         navController =navController,
         startDestination = Screens.DASHBOARD_SCREEN,
+        modifier = Modifier.semantics {
+            testTagsAsResourceId = true
+        }
     ){
         composable(Screens.DASHBOARD_SCREEN){
             DashBoardScreen(navHostController = navController)

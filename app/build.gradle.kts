@@ -44,6 +44,11 @@ android {
             isMinifyEnabled =  false
             proguardFiles (getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+        create("benchmark") {
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
+        }
     }
     compileOptions {
         sourceCompatibility= JavaVersion.VERSION_1_8
@@ -143,6 +148,7 @@ dependencies {
     //paging 3
     implementation ("androidx.paging:paging-runtime-ktx:3.1.1")
     implementation ("androidx.paging:paging-compose:1.0.0-alpha18")
+    implementation ("androidx.profileinstaller:profileinstaller:1.3.0-alpha02")
 
 
 

@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -131,7 +132,7 @@ fun HomeScreen(
                 is Resource.Loading -> {
                     CircularProgressIndicator(
                         color = MaterialTheme.colors.primary,
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center).testTag("loader")
                     )
                 }
                 is Resource.Success -> {
@@ -147,7 +148,7 @@ fun HomeScreen(
                                 .fillMaxWidth()
                                 .padding(bottom = 2.dp)
                         ) {
-                            items(categories) { category ->
+                            items(items = categories) { category ->
                                 CategoryCard(navController = navController, categoryItem = category)
 
                             }
@@ -155,9 +156,11 @@ fun HomeScreen(
                         }
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
-                            Modifier.background(MaterialTheme.colors.background)
+                            Modifier
+                                .background(color = MaterialTheme.colors.background)
+                                .testTag(tag = "products_list")
                         ) {
-                            items(viewModel.products.value) { product ->
+                            items(items = viewModel.products.value) { product ->
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
@@ -181,6 +184,9 @@ fun HomeScreen(
                                     Spacer(modifier = Modifier.height(8.dp))
                                 }
                             }
+                            item {
+                                Text(text = "Test element")
+                            }
 
                         }
 
@@ -190,7 +196,8 @@ fun HomeScreen(
                 }
                 is Resource.Error -> {
                     Text(
-                        modifier = Modifier.align(Alignment.Center),
+                        modifier = Modifier.align(Alignment.Center).testTag("Error Message"),
+                        style = TextStyle(color = MaterialTheme.colors.primary),
                         text = homeScreenState.value.message ?: "An unexpected error occurred"
                     )
 
