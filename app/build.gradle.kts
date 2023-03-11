@@ -150,6 +150,10 @@ dependencies {
     implementation ("androidx.paging:paging-compose:1.0.0-alpha18")
     implementation ("androidx.profileinstaller:profileinstaller:1.3.0-beta01")
 
+    //chucker -for http logging
+    debugImplementation ("com.github.chuckerteam.chucker:library:3.5.2")
+    releaseImplementation ("com.github.chuckerteam.chucker:library-no-op:3.5.2")
+
 
 
 
