@@ -29,4 +29,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Cartify"
 include(":app")
-include(":benchmark")

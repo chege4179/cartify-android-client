@@ -25,5 +25,6 @@ object Screens {
     const val LOGIN_SCREEN = "LOGIN_SCREEN"
     const val SIGN_UP_SCREEN = "SIGN_UP_SCREEN"
     const val DASHBOARD_SCREEN = "DASHBOARD_SCREEN"
+    const val SEARCH_SCREEN = "SEARCH_SCREEN"
 
 }

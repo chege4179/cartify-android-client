@@ -24,15 +24,17 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import coil.annotation.ExperimentalCoilApi
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.peterchege.cartify.core.util.Screens
 import com.peterchege.cartify.presentation.screens.cart_screen.CartScreen
 import com.peterchege.cartify.presentation.screens.dashboard_screens.DashBoardScreen
 import com.peterchege.cartify.presentation.screens.login_screen.LoginScreen
 import com.peterchege.cartify.presentation.screens.product_screen.ProductScreen
+import com.peterchege.cartify.presentation.screens.search_screen.SearchScreen
 import com.peterchege.cartify.presentation.screens.sign_up_screen.SignUpScreen
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalCoilApi::class)
 @ExperimentalMaterialApi
 @ExperimentalPagerApi
 @Composable
@@ -46,19 +48,22 @@ fun Navigation(
             testTagsAsResourceId = true
         }
     ){
-        composable(Screens.DASHBOARD_SCREEN){
+        composable(route = Screens.DASHBOARD_SCREEN){
             DashBoardScreen(navHostController = navController)
         }
-        composable(Screens.PRODUCT_SCREEN + "/{id}"){
+        composable(route = Screens.SEARCH_SCREEN ){
+            SearchScreen(navController = navController, navHostController = navController)
+        }
+        composable(route = Screens.PRODUCT_SCREEN + "/{id}"){
             ProductScreen(navController = navController, navHostController = navController)
         }
-        composable(Screens.CART_SCREEN){
+        composable(route = Screens.CART_SCREEN){
             CartScreen(navController = navController)
         }
-        composable(Screens.LOGIN_SCREEN){
+        composable(route = Screens.LOGIN_SCREEN){
             LoginScreen(navController = navController)
         }
-        composable(Screens.SIGN_UP_SCREEN){
+        composable(route = Screens.SIGN_UP_SCREEN){
             SignUpScreen(navController = navController)
         }
     }
