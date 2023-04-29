@@ -18,7 +18,7 @@ jobs:
           java-version: 11
 
       - name: Set up Gradle Build Action
-      - uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v2
         with:
           gradle-home-cache-cleanup: true
       - name: Build Debug APK
