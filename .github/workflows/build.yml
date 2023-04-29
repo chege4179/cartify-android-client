@@ -15,16 +15,15 @@ jobs:
         with:
           java-version: 11
 
-      - name: Cache gradle
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-     
 
-      - name: Build with Gradle
-        run: ./gradlew build
+      - name: Set up Gradle Build Action
+      - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
+
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
 
       - name: Upload a Build Artifact (APK)
         uses: actions/upload-artifact@v2.2.4
