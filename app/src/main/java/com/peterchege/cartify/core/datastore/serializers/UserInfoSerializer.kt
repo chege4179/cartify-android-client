@@ -44,15 +44,17 @@ object UserInfoSerializer : Serializer<User?> {
         output.write(
             Json.encodeToString(
                 serializer = User.serializer(),
-                value = t ?: User(
-                    _id =  "",
-                    fullname =  "",
-                    email =  "",
-                    phoneNumber =  "",
-                    password =  "",
-                    address =  ""
-                )
+                value = t ?: defaultUserInfo
             ).encodeToByteArray()
         )
     }
 }
+
+val defaultUserInfo = User(
+    _id =  "",
+    fullname =  "",
+    email =  "",
+    phoneNumber =  "",
+    password =  "",
+    address =  ""
+)

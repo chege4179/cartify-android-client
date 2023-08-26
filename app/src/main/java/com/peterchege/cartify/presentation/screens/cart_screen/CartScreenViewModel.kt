@@ -15,8 +15,6 @@
  */
 package com.peterchege.cartify.presentation.screens.cart_screen
 
-import android.content.Context
-import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -25,7 +23,6 @@ import com.peterchege.cartify.core.api.NetworkResult
 import com.peterchege.cartify.core.api.requests.OrderBody
 import com.peterchege.cartify.core.room.entities.CartItem
 import com.peterchege.cartify.core.util.UiEvent
-import com.peterchege.cartify.core.util.helperFunctions
 import com.peterchege.cartify.domain.models.User
 import com.peterchege.cartify.domain.repository.CartRepository
 import com.peterchege.cartify.domain.repository.OrderRepository
@@ -39,7 +36,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 

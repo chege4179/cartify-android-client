@@ -15,19 +15,11 @@
  */
 package com.peterchege.cartify.presentation.screens.sign_up_screen
 
-import android.content.Context
-import androidx.compose.material.ScaffoldState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
-import com.peterchege.cartify.core.api.CartifyApi
 import com.peterchege.cartify.core.api.NetworkResult
 import com.peterchege.cartify.core.api.requests.SignUpUser
-import com.peterchege.cartify.core.util.Screens
 import com.peterchege.cartify.core.util.UiEvent
-import com.peterchege.cartify.core.util.helperFunctions
 import com.peterchege.cartify.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -35,8 +27,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.io.IOException
 import javax.inject.Inject
 
 data class SignUpFormState(

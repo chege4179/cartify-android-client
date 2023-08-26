@@ -30,10 +30,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import com.peterchege.cartify.core.util.Screens
 import com.peterchege.cartify.core.util.UiEvent
-import com.peterchege.cartify.core.util.helperFunctions
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 
@@ -49,7 +46,7 @@ fun LoginScreen(
         formState = formState,
         onChangeEmail = viewModel::onChangeEmail,
         onChangePassword = viewModel::onChangePassword,
-        onSubmit = viewModel::loginUser,
+        onSubmit = { viewModel.loginUser(navigateToDashboardScreen) },
         eventFlow = viewModel.eventFlow,
         navigateToSignUpScreen = navigateToSignUpScreen
     )

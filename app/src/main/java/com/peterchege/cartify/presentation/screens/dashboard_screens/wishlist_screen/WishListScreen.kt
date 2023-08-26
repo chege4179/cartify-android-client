@@ -115,7 +115,15 @@ fun WishListScreenContent(
                         .padding(top = 10.dp)
                 ) {
                     if(uiState.wishlistItems.isEmpty()){
-                        Text("Your wishlist is empty")
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                        ){
+                            Text(
+                                style = TextStyle(color = MaterialTheme.colors.primary),
+                                text = "Your wishlist is empty"
+                            )
+                        }
+
                     }else{
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),

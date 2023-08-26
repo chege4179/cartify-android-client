@@ -28,6 +28,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,12 +39,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.peterchege.cartify.core.util.UiEvent
 import com.peterchege.cartify.core.util.categories
 import com.peterchege.cartify.domain.models.Product
 import com.peterchege.cartify.presentation.components.CartIconComponent
 import com.peterchege.cartify.presentation.components.CategoryCard
 import com.peterchege.cartify.presentation.components.LoadingComponent
 import com.peterchege.cartify.presentation.components.ProductCard
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -57,6 +61,7 @@ fun HomeScreen(
 
     HomeScreenContent(
         uiState = uiState,
+        eventFlow = viewModel.eventFlow,
         navigateToProductScreen = navigateToProductScreen,
         navigateToCartScreen = navigateToCartScreen,
         navigateToSearchScreen = navigateToSearchScreen,
@@ -71,12 +76,28 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     uiState:HomeScreenUiState,
+    eventFlow:SharedFlow<UiEvent>,
     navigateToProductScreen:(String) -> Unit,
     navigateToCartScreen:() -> Unit,
     navigateToSearchScreen:() -> Unit,
     addToWishList:(Product) -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState()
+
+    LaunchedEffect(key1 = true) {
+        eventFlow.collectLatest { event ->
+            when (event) {
+                is UiEvent.ShowSnackbar -> {
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = event.uiText
+                    )
+                }
+                is UiEvent.Navigate -> {
+
+                }
+            }
+        }
+    }
 
 
     Scaffold(
@@ -119,7 +140,6 @@ fun HomeScreenContent(
                         }
 
                     }
-
                 },
                 backgroundColor = MaterialTheme.colors.onBackground
             )

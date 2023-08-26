@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.peterchege.cartify.core.work
+package com.peterchege.cartify.core.util
 
-import androidx.work.WorkInfo
+import java.util.Locale
+import java.util.Random
 
-object WorkConstants {
-    const val NOTIFICATION_CHANNEL = "notification_channel"
-
-    const val syncProductsWorkerName = "sync_products"
+fun randomColorCode(): String {
+    val random = Random()
+    val nextInt = random.nextInt(0xffffff + 1)
+    return String.format("#%06x", nextInt).drop(1).capitalize(Locale.ROOT)
 }
 
-val List<WorkInfo>.anyRunning get() = any { it.state == WorkInfo.State.RUNNING }
+fun generateAvatarURL(name:String):String{
+    val splitname = name.split(" ").joinToString("+")
+    val color = randomColorCode()
+    return "https://ui-avatars.com/api/?background=${color}&color=fff&name=${splitname}&bold=true&fontsize=0.6&rounded=true"
+
+}

@@ -16,7 +16,6 @@
 package com.peterchege.cartify.presentation.screens.sign_up_screen
 
 import android.annotation.SuppressLint
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -32,10 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import com.peterchege.cartify.core.util.Screens
 import com.peterchege.cartify.core.util.UiEvent
-import com.peterchege.cartify.core.util.helperFunctions
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 

@@ -63,7 +63,7 @@ class LoginScreenViewModel @Inject constructor(
 
 
     }
-    fun loginUser(){
+    fun loginUser(navigateToProfileScreen:() -> Unit){
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             val loginUser = LoginUser(
@@ -76,9 +76,9 @@ class LoginScreenViewModel @Inject constructor(
                 is NetworkResult.Success -> {
                     _eventFlow.emit(UiEvent.ShowSnackbar(uiText =response.data.msg))
                     if (response.data.success){
-                        _eventFlow.emit(UiEvent.Navigate(route = Screens.DASHBOARD_SCREEN))
                         response.data.user?.let {
                             authRepository.saveUser(it)
+                            navigateToProfileScreen()
                         }
                     }
                 }

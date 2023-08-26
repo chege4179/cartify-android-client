@@ -78,10 +78,9 @@ kotlin {
 dependencies {
 
     implementation( "androidx.core:core-ktx:1.10.1")
-    implementation ("androidx.compose.ui:ui:1.6.0-alpha03")
-    implementation ("androidx.compose.material:material:1.6.0-alpha03")
-    implementation ("androidx.compose.ui:ui-tooling-preview:1.6.0-alpha03")
-    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation ("androidx.compose.ui:ui:1.6.0-alpha04")
+    implementation ("androidx.compose.material:material:1.6.0-alpha04")
+    implementation ("androidx.compose.ui:ui-tooling-preview:1.6.0-alpha04")
     implementation ("androidx.activity:activity-compose:1.7.2")
     testImplementation ("junit:junit:4.13.2")
     androidTestImplementation ("androidx.test.ext:junit:1.1.5")
@@ -103,8 +102,8 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
 
     //coroutines
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     // dagger hilt
     implementation ("com.google.dagger:hilt-android:2.45")
@@ -127,8 +126,8 @@ dependencies {
     // glide
     implementation ("dev.chrisbanes.accompanist:accompanist-glide:0.5.1")
     //pager
-    implementation ("com.google.accompanist:accompanist-pager:0.28.0")
-    implementation ("com.google.accompanist:accompanist-pager-indicators:0.28.0")
+    implementation ("com.google.accompanist:accompanist-pager:0.30.1")
+    implementation ("com.google.accompanist:accompanist-pager-indicators:0.30.1")
     // swipe refresh
     implementation ("com.google.accompanist:accompanist-swiperefresh:0.28.0")
     // landscapist
@@ -146,7 +145,7 @@ dependencies {
     implementation( "androidx.core:core-splashscreen:1.0.1")
 
     //navigation animation
-    implementation ("com.google.accompanist:accompanist-navigation-animation:0.28.0")
+    implementation ("com.google.accompanist:accompanist-navigation-animation:0.30.1")
 
     //paging 3
     implementation ("androidx.paging:paging-runtime-ktx:3.2.0")
@@ -158,9 +157,8 @@ dependencies {
     implementation("androidx.hilt:hilt-common:1.0.0")
 
     //chucker -for http logging
-    debugImplementation ("com.github.chuckerteam.chucker:library:3.5.2")
-
-    releaseImplementation ("com.github.chuckerteam.chucker:library-no-op:3.5.2")
+    debugImplementation ("com.github.chuckerteam.chucker:library:4.0.0")
+    releaseImplementation ("com.github.chuckerteam.chucker:library-no-op:4.0.0")
 
 
 

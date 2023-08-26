@@ -18,9 +18,11 @@ package com.peterchege.cartify.core.datastore.repository
 import android.content.Context
 import androidx.datastore.dataStore
 import com.peterchege.cartify.core.datastore.serializers.UserInfoSerializer
+import com.peterchege.cartify.core.datastore.serializers.defaultUserInfo
 import com.peterchege.cartify.domain.models.User
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 val Context.userDataStore by dataStore("user.json", UserInfoSerializer)
@@ -31,7 +33,17 @@ class DefaultAuthProvider @Inject constructor(
 ){
 
     fun getLoggedInUser(): Flow<User?> {
-        return context.userDataStore.data
+        return context.userDataStore.data.map {
+            if (it != null){
+                if (it == defaultUserInfo){
+                    return@map null
+                }else{
+                    return@map it
+                }
+            }else{
+                return@map null
+            }
+        }
     }
     suspend fun setLoggedInUser(user: User) {
         context.userDataStore.updateData {
