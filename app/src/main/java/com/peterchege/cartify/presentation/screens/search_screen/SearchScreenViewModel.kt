@@ -15,64 +15,78 @@
  */
 package com.peterchege.cartify.presentation.screens.search_screen
 
-import android.content.Context
-import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.peterchege.cartify.core.api.CartifyApi
-import com.peterchege.cartify.domain.state.SearchProducts
-import com.peterchege.cartify.domain.state.SearchProductsUiState
+import com.peterchege.cartify.core.api.NetworkResult
+import com.peterchege.cartify.domain.models.Product
+import com.peterchege.cartify.domain.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.io.IOException
 import javax.inject.Inject
 
 
+sealed interface SearchProductScreensUiState {
+    object Idle : SearchProductScreensUiState
+
+    data class ResultsFound(val products: List<Product>) : SearchProductScreensUiState
+
+    object Searching : SearchProductScreensUiState
+
+    data class Error(val message: String) : SearchProductScreensUiState
+
+}
+
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
-    private val api: CartifyApi
+    private val productRepository: ProductRepository,
 
-) : ViewModel() {
+    ) : ViewModel() {
 
     private val _searchTerm = mutableStateOf("")
     val searchTerm: State<String> = _searchTerm
     var searchJob: Job? = null
 
     val _uiState =
-        MutableStateFlow<SearchProductsUiState>(SearchProductsUiState.Idle(message = "Search a product"))
+        MutableStateFlow<SearchProductScreensUiState>(SearchProductScreensUiState.Idle)
     val uiState = _uiState.asStateFlow()
 
 
     fun onChangeSearchTerm(query: String) {
         _searchTerm.value = query
         if (query.length > 3) {
-            _uiState.value = SearchProductsUiState.Loading(message = "Loading...")
+            _uiState.value = SearchProductScreensUiState.Searching
             searchJob?.cancel()
             searchJob = viewModelScope.launch {
-                try {
-                    val response = api.searchProduct(searchTerm = query)
-
-                    if (response.success) {
-                        _uiState.value =
-                            SearchProductsUiState.Success(data = SearchProducts(products = response.products))
-                    } else {
-                        _uiState.value = SearchProductsUiState.Error(errorMessage = response.msg)
+                val response = productRepository.searchProducts(query = query)
+                when (response) {
+                    is NetworkResult.Success -> {
+                        if (response.data.success) {
+                            _uiState.value =
+                                SearchProductScreensUiState.ResultsFound(
+                                    products = response.data.products
+                                )
+                        } else {
+                            _uiState.value =
+                                SearchProductScreensUiState.Error(message = response.data.msg)
+                        }
                     }
-                } catch (e: HttpException) {
-                    _uiState.value = SearchProductsUiState.Error(
-                        errorMessage =
-                        e.localizedMessage ?: "Please check your internet connection"
-                    )
-                } catch (e: IOException) {
-                    _uiState.value = SearchProductsUiState.Error(
-                        errorMessage = e.localizedMessage ?: "An unexpected error occurred"
-                    )
+
+                    is NetworkResult.Error -> {
+                        _uiState.value = SearchProductScreensUiState.Error(
+                            message = "Please check your internet connection"
+                        )
+                    }
+
+                    is NetworkResult.Exception -> {
+                        _uiState.value = SearchProductScreensUiState.Error(
+                            message = "An unexpected error occurred"
+                        )
+                    }
                 }
             }
         }

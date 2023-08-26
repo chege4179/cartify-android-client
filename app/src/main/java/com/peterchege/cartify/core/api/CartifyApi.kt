@@ -19,6 +19,7 @@ import com.peterchege.cartify.core.api.requests.LoginUser
 import com.peterchege.cartify.core.api.requests.OrderBody
 import com.peterchege.cartify.core.api.requests.SignUpUser
 import com.peterchege.cartify.core.api.responses.*
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -27,23 +28,23 @@ import retrofit2.http.Path
 
 interface CartifyApi {
     @GET("/product/all")
-    suspend fun getAllProducts(): AllProductsResponse
+    suspend fun getAllProducts(): Response<AllProductsResponse>
 
     @GET("/product/single/{id}")
-    suspend fun getProductById(@Path("id") id : String): ProductByIdResponse
+    suspend fun getProductById(@Path("id") id : String):Response<ProductByIdResponse>
 
     @GET("/product/search/v2/{searchTerm}")
-    suspend fun searchProduct(@Path("searchTerm") searchTerm : String): AllProductsResponse
+    suspend fun searchProduct(@Path("searchTerm") searchTerm : String):Response<AllProductsResponse>
 
     @POST("/user/login")
-    suspend fun loginUser(@Body loginUser: LoginUser): LoginResponse
+    suspend fun loginUser(@Body loginUser: LoginUser):Response<LoginResponse>
 
     @POST("/user/signup")
-    suspend fun signUpUser(@Body signUpUser: SignUpUser): SignUpResponse
+    suspend fun signUpUser(@Body signUpUser: SignUpUser):Response<SignUpResponse>
 
     @POST("/order/add")
-    suspend fun addOrder(@Body orderBody: OrderBody): OrderResponse
+    suspend fun addOrder(@Body orderBody: OrderBody):Response<OrderResponse>
 
     @GET("/order/single/{id}")
-    suspend fun getMyOrders(@Path("id") id:String): AllMyOrdersResponse
+    suspend fun getMyOrders(@Path("id") id:String):Response<AllMyOrdersResponse>
 }

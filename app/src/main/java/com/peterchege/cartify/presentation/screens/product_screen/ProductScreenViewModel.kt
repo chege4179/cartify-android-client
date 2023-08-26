@@ -21,13 +21,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.peterchege.cartify.core.room.entities.CartItem
+import com.peterchege.cartify.core.util.UiEvent
 import com.peterchege.cartify.domain.models.Product
 import com.peterchege.cartify.data.CartRepositoryImpl
 import com.peterchege.cartify.domain.mappers.toCartItem
 import com.peterchege.cartify.domain.repository.CartRepository
 import com.peterchege.cartify.domain.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -35,6 +42,13 @@ import java.io.IOException
 import java.lang.Exception
 import javax.inject.Inject
 
+sealed interface ProductScreenUiState {
+    data class Success(val cart:List<CartItem>,val product:Product):ProductScreenUiState
+
+    data class Error(val message:String):ProductScreenUiState
+
+    object Loading:ProductScreenUiState
+}
 
 @HiltViewModel
 class ProductScreenViewModel @Inject constructor(
@@ -43,79 +57,47 @@ class ProductScreenViewModel @Inject constructor(
     private val cartRepository: CartRepository,
 ) :ViewModel() {
 
+    private val productId = savedStateHandle.get<String>("id") ?: ""
 
-    val cart = cartRepository.getCart()
+    private val _eventFlow = MutableSharedFlow<UiEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
+
+    val uiState = combine(
+        cartRepository.getCart(),
+        productRepository.getProductById(productId)
+    ){ cart, product ->
+        if (product == null){
+            ProductScreenUiState.Error(message ="Item not found")
+        }else{
+            ProductScreenUiState.Success(cart = cart,product = product)
+        }
+    }.onStart { ProductScreenUiState.Loading }
+        .catch { ProductScreenUiState.Error(message = "An unexpected error occurred") }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = emptyList()
+            initialValue = ProductScreenUiState.Loading
         )
 
-    private val _errorMsg = mutableStateOf("")
-    val errorMsg:State<String> =_errorMsg
-
-    private val _isError = mutableStateOf(false)
-    val isError:State<Boolean> =_isError
-
-    private val _isLoading = mutableStateOf(false)
-    val isLoading:State<Boolean> =_isLoading
-
-    private val _product = mutableStateOf<Product?>(null)
-    val product : State<Product?> = _product
-
-
-
-    init {
-
-        savedStateHandle.get<String>("id")?.let {
-            getProductById(it)
-        }
-    }
-
-    fun addToCart(){
-        val newCartItem = _product.value?.toCartItem()
+    fun addToCart(product: Product){
+        val newCartItem = product.toCartItem()
         viewModelScope.launch {
             try {
-                cartRepository.insertIntoCart(newCartItem!!)
+                cartRepository.insertIntoCart(newCartItem)
             }catch (e:IOException){
 
             }
         }
     }
-    fun addToWishList(product: Product, scaffoldState: ScaffoldState){
+    fun addToWishList(product: Product,){
         viewModelScope.launch {
             try {
                 productRepository.addProductToWishList(product = product)
-                scaffoldState.snackbarHostState.showSnackbar(
-                    message = "${product.name} has been added to your wishlist"
-                )
+                _eventFlow.emit(UiEvent.ShowSnackbar(uiText = "${product.name} has been added to your wishlist"))
+
             }catch (e:Exception){
+                _eventFlow.emit(UiEvent.ShowSnackbar(uiText = "Failed to add to wishlist"))
 
-            }
-        }
-
-    }
-    private fun getProductById(id:String){
-        viewModelScope.launch {
-            try {
-
-                _isLoading.value = true
-                val response = productRepository.getProductById(id)
-                _isLoading.value = false
-                if (response.success){
-                    _product.value = response.product
-                }else{
-                    _isError.value = true
-                    _errorMsg.value = response.msg
-                }
-            }catch (e:HttpException){
-                _isLoading.value = false
-                _isError.value = true
-                _errorMsg.value = "Server down ... Please try again"
-            }catch (e:IOException){
-                _isLoading.value = false
-                _isError.value = true
-                _errorMsg.value = "Please check your internet connection"
             }
         }
     }

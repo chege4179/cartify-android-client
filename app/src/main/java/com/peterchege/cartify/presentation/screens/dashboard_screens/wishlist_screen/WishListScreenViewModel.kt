@@ -15,21 +15,29 @@
  */
 package com.peterchege.cartify.presentation.screens.dashboard_screens.wishlist_screen
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.peterchege.cartify.data.CartRepositoryImpl
-
-import com.peterchege.cartify.core.room.entities.ProductRoom
 import com.peterchege.cartify.core.room.entities.CartItem
+import com.peterchege.cartify.domain.models.Product
 import com.peterchege.cartify.domain.repository.CartRepository
 import com.peterchege.cartify.domain.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+sealed interface WishListScreenUiState {
+    object Loading:WishListScreenUiState
+
+    data class Success(val cart:List<CartItem>,val wishlistItems:List<Product>):WishListScreenUiState
+
+    data class Error(val message:String):WishListScreenUiState
+}
+
 
 @HiltViewModel
 class WishListScreenViewModel @Inject constructor(
@@ -37,23 +45,20 @@ class WishListScreenViewModel @Inject constructor(
     private val cartRepository: CartRepository,
 ):ViewModel() {
 
-    val cart = cartRepository.getCart()
+    val uiState = combine(
+        cartRepository.getCart(),
+        productRepository.getWishListProducts()
+    ){ cart,products ->
+        WishListScreenUiState.Success(cart = cart,wishlistItems = products)
+    }.onStart { WishListScreenUiState.Loading }
+        .catch { WishListScreenUiState.Error(message ="An error occurred") }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = emptyList()
+            initialValue = WishListScreenUiState.Loading
         )
 
-    private val _wishlist = mutableStateOf<List<ProductRoom>>(emptyList())
-    val wishlist : State<List<ProductRoom>> = _wishlist
-
-
-
-    init {
-        getWishListProducts()
-    }
-
-    fun deleteProductfromRoom(id:String){
+    fun deleteWishListItem(id:String){
         viewModelScope.launch {
             try {
                 productRepository.deleteWishListProductById(id)
@@ -64,18 +69,4 @@ class WishListScreenViewModel @Inject constructor(
         }
 
     }
-
-    private fun getWishListProducts(){
-        viewModelScope.launch {
-            try {
-                productRepository.getWishListProducts().collect {
-                    _wishlist.value = it
-                }
-            }catch (e:Exception){
-
-            }
-        }
-
-    }
-
 }

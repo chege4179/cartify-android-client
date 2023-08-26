@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,24 +31,56 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.peterchege.cartify.core.util.Screens
 import com.peterchege.cartify.core.util.UiEvent
 import com.peterchege.cartify.core.util.helperFunctions
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SignUpScreen(
-    navController: NavController,
+    navigateToLoginScreen:() -> Unit,
     viewModel: SignUpScreenViewModel = hiltViewModel()
+){
+    val formState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    SignUpScreenContent(
+        uiState = formState,
+        eventFlow = viewModel.eventFlow,
+        navigateToLoginScreen = navigateToLoginScreen,
+        onChangeFullName = viewModel::onChangeFullname,
+        onChangeEmail = viewModel::onChangeEmail,
+        onChangePassword = viewModel::onChangePassword,
+        onChangePasswordConfirm = viewModel::onChangeConfirmPassword,
+        onChangeAddress = viewModel::onChangeAddress,
+        onChangePhoneNumber = viewModel::onChangePhoneNumber,
+        onSubmit = { viewModel.signUpUser(navigateToLoginScreen) }
+    )
+}
+
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@Composable
+fun SignUpScreenContent(
+    uiState:SignUpFormState,
+    eventFlow:SharedFlow<UiEvent>,
+    navigateToLoginScreen:() -> Unit,
+    onChangeFullName:(String) -> Unit,
+    onChangeEmail:(String) -> Unit,
+    onChangePassword:(String) -> Unit,
+    onChangePasswordConfirm:(String) -> Unit,
+    onChangeAddress:(String) -> Unit,
+    onChangePhoneNumber:(String) -> Unit,
+    onSubmit:() -> Unit,
+
 ) {
     val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
 
     LaunchedEffect(key1 = true) {
-        viewModel.eventFlow.collectLatest { event ->
+        eventFlow.collectLatest { event ->
             when (event) {
                 is UiEvent.ShowSnackbar -> {
                     scaffoldState.snackbarHostState.showSnackbar(
@@ -55,7 +88,7 @@ fun SignUpScreen(
                     )
                 }
                 is UiEvent.Navigate -> {
-                    navController.navigate(route = event.route)
+
                 }
             }
         }
@@ -67,7 +100,7 @@ fun SignUpScreen(
             .padding(20.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            if (viewModel.isLoading.value) {
+            if (uiState.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
             Column(
@@ -88,9 +121,9 @@ fun SignUpScreen(
                 )
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = viewModel.fullNameState.value,
+                    value = uiState.fullName,
                     onValueChange = {
-                        viewModel.OnChangeFullname(it)
+                        onChangeFullName(it)
 
                     },
                     textStyle = TextStyle(
@@ -106,9 +139,9 @@ fun SignUpScreen(
                 Spacer(modifier = Modifier.height(15.dp))
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = viewModel.emailState.value,
+                    value = uiState.email,
                     onValueChange = {
-                        viewModel.OnChangeEmail(it)
+                        onChangeEmail(it)
 
                     },
                     textStyle = TextStyle(
@@ -124,9 +157,9 @@ fun SignUpScreen(
                 Spacer(modifier = Modifier.height(15.dp))
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = viewModel.phoneNumberState.value,
+                    value =uiState.phoneNumber,
                     onValueChange = {
-                        viewModel.OnChangePhoneNumber(it)
+                        onChangePhoneNumber(it)
 
                     },
                     textStyle = TextStyle(
@@ -142,9 +175,9 @@ fun SignUpScreen(
                 Spacer(modifier = Modifier.height(15.dp))
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = viewModel.addressState.value,
+                    value = uiState.address,
                     onValueChange = {
-                        viewModel.OnChangeAddress(it)
+                        onChangeAddress(it)
 
                     },
                     textStyle = TextStyle(
@@ -160,9 +193,9 @@ fun SignUpScreen(
                 Spacer(modifier = Modifier.height(15.dp))
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = viewModel.passwordState.value,
+                    value = uiState.password,
                     onValueChange = {
-                        viewModel.OnChangePassword(it)
+                        onChangePassword(it)
                     },
                     label = {
                         Text(
@@ -174,9 +207,9 @@ fun SignUpScreen(
                 Spacer(modifier = Modifier.height(15.dp))
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = viewModel.confirmPasswordState.value,
+                    value = uiState.passwordConfirm,
                     onValueChange = {
-                        viewModel.OnChangeConfirmPassword(it)
+                        onChangePasswordConfirm(it)
                     },
                     textStyle = TextStyle(
                         color = MaterialTheme.colors.primary
@@ -190,16 +223,14 @@ fun SignUpScreen(
                 )
                 Spacer(modifier = Modifier.height(15.dp))
                 Button(
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = MaterialTheme.colors.onBackground
                     ),
                     onClick = {
-                        if(helperFunctions.hasInternetConnection(context = context)){
-                            viewModel.signUpUser()
-                        }else{
-                            Toast.makeText(context,"No intenet connection found",Toast.LENGTH_SHORT).show()
-                        }
+                        onSubmit()
                     }
                 )
                 {
@@ -210,7 +241,7 @@ fun SignUpScreen(
                 }
                 Spacer(modifier = Modifier.height(30.dp))
                 TextButton(onClick = {
-                    navController.navigate(Screens.LOGIN_SCREEN)
+                    navigateToLoginScreen()
 
                 }) {
                     Text(

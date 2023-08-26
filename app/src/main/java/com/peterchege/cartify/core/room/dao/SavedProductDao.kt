@@ -16,26 +16,24 @@
 package com.peterchege.cartify.core.room.dao
 
 import androidx.room.*
-
-import com.peterchege.cartify.core.room.entities.ProductRoom
-
+import com.peterchege.cartify.core.room.entities.SavedProductEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface ProductDao {
+interface SavedProductDao {
 
-    @Query("SELECT * FROM product")
-    fun getProducts(): Flow<List<ProductRoom>>
+    @Query("SELECT * FROM saved_product")
+    fun getAllSavedProducts(): Flow<List<SavedProductEntity>>
 
-    @Query("SELECT * FROM product WHERE _id = :id")
-    suspend fun getProductById(id: String): ProductRoom?
+    @Query("SELECT * FROM saved_product WHERE _id = :id")
+    suspend fun getSavedProductById(id: String): SavedProductEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertProduct(productRoom: ProductRoom)
+    suspend fun insertSavedProduct(product: SavedProductEntity)
 
-    @Query("DELETE FROM product WHERE _id = :id")
-    suspend fun deleteProductById(id: String)
+    @Query("DELETE FROM saved_product WHERE _id = :id")
+    suspend fun deleteSavedProductById(id: String)
 
-    @Query("DELETE FROM product")
-    suspend fun deleteAllProduct()
+    @Query("DELETE FROM saved_product")
+    suspend fun deleteAllSavedProducts()
 }

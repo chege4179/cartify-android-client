@@ -34,7 +34,7 @@ import com.peterchege.cartify.core.util.Screens
 
 @Composable
 fun CartIconComponent(
-    navController: NavController,
+    navigateToCartScreen:() -> Unit,
     cartCount:Int,
 ){
     Row(
@@ -56,7 +56,7 @@ fun CartIconComponent(
                 }) {
                     Icon(
                         imageVector = Icons.Filled.AddShoppingCart,
-                        contentDescription = "Favorite",
+                        contentDescription = "Cart",
                         modifier = Modifier.size(26.dp),
                         tint = MaterialTheme.colors.primary
                     )
@@ -65,7 +65,7 @@ fun CartIconComponent(
             },
             selected = false,
             onClick = {
-                navController.navigate(Screens.CART_SCREEN)
+                navigateToCartScreen()
             })
 
     }

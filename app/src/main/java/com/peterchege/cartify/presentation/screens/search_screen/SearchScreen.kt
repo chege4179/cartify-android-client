@@ -20,7 +20,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,11 +38,10 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -51,25 +49,41 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import com.peterchege.cartify.core.util.Screens
 import com.peterchege.cartify.core.util.categories
-import com.peterchege.cartify.domain.state.ProductsUiState
-import com.peterchege.cartify.domain.state.SearchProductsUiState
 import com.peterchege.cartify.presentation.components.CategoryCard
 import com.peterchege.cartify.presentation.components.ProductCard
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SearchScreen(
-    navController: NavController,
-    navHostController: NavHostController,
+    navigateToProductScreen:(String) -> Unit,
     viewModel:SearchScreenViewModel = hiltViewModel(),
+){
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    SearchScreenContent(
+        uiState = uiState,
+        searchTerm = viewModel.searchTerm.value,
+        onChangeSearchTerm = viewModel::onChangeSearchTerm,
+        navigateToProductScreen = navigateToProductScreen,
+    )
+}
+
+
+
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@Composable
+fun SearchScreenContent(
+    uiState:SearchProductScreensUiState,
+    searchTerm:String,
+    onChangeSearchTerm:(String) -> Unit,
+    navigateToProductScreen:(String) -> Unit,
+
 ) {
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+
     Scaffold(
-        modifier = Modifier.fillMaxSize().padding(10.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp)
     ) {
 
         TextField(
@@ -77,9 +91,9 @@ fun SearchScreen(
                 .fillMaxWidth()
                 .background(color = MaterialTheme.colors.onBackground)
                 ,
-            value = viewModel.searchTerm.value,
+            value = searchTerm,
             onValueChange = {
-                viewModel.onChangeSearchTerm(query = it,)
+                onChangeSearchTerm(it)
             },
             trailingIcon = {
                 Icon(
@@ -111,16 +125,16 @@ fun SearchScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             when (uiState) {
-                is SearchProductsUiState.Idle -> {
+                is SearchProductScreensUiState.Idle -> {
                     Text(
                         modifier = Modifier
                             .align(Alignment.Center)
                             .testTag("Error Message"),
                         style = TextStyle(color = MaterialTheme.colors.primary),
-                        text = uiState.message
+                        text = "Search an Item"
                     )
                 }
-                is SearchProductsUiState.Loading -> {
+                is SearchProductScreensUiState.Searching -> {
                     CircularProgressIndicator(
                         color = MaterialTheme.colors.primary,
                         modifier = Modifier
@@ -128,7 +142,7 @@ fun SearchScreen(
                             .testTag("loader")
                     )
                 }
-                is SearchProductsUiState.Success -> {
+                is SearchProductScreensUiState.ResultsFound -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -142,7 +156,7 @@ fun SearchScreen(
                                 .padding(bottom = 2.dp)
                         ) {
                             items(items = categories) { category ->
-                                CategoryCard(navController = navController, categoryItem = category)
+                                CategoryCard( categoryItem = category)
 
                             }
 
@@ -153,14 +167,14 @@ fun SearchScreen(
                                 .background(color = MaterialTheme.colors.background)
                                 .testTag(tag = "products_list")
                         ) {
-                            items(items = uiState.data.products) { product ->
+                            items(items = uiState.products) { product ->
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     ProductCard(
                                         product = product,
                                         onNavigateToProductScreen = { id ->
-                                            navHostController.navigate(Screens.PRODUCT_SCREEN + "/${id}")
+                                            navigateToProductScreen(id)
 
                                         },
                                         onAddToWishList = {
@@ -183,13 +197,13 @@ fun SearchScreen(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-                is SearchProductsUiState.Error -> {
+                is SearchProductScreensUiState.Error -> {
                     Text(
                         modifier = Modifier
                             .align(Alignment.Center)
                             .testTag("Error Message"),
                         style = TextStyle(color = MaterialTheme.colors.primary),
-                        text = uiState.errorMessage
+                        text = uiState.message
                     )
 
                 }

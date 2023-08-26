@@ -15,20 +15,27 @@
  */
 package com.peterchege.cartify.data
 
-import com.peterchege.cartify.core.datastore.preferences.UserSettingsPreferences
+import com.peterchege.cartify.core.datastore.preferences.DefaultSettingsProvider
+import com.peterchege.cartify.core.di.IoDispatcher
 import com.peterchege.cartify.domain.repository.SettingsRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class SettingsRepositoryImpl @Inject constructor(
-    private val userSettingsRepository: UserSettingsPreferences
+    private val defaultSettingsProvider: DefaultSettingsProvider,
+    @IoDispatcher private val ioDispatcher:CoroutineDispatcher
 
 ):SettingsRepository {
     override fun getTheme(): Flow<String> {
-        return userSettingsRepository.getTheme()
+        return defaultSettingsProvider.getTheme().flowOn(ioDispatcher)
     }
 
     override suspend fun setTheme(themeValue: String) {
-        return userSettingsRepository.setTheme(themeValue = themeValue)
+        withContext(ioDispatcher){
+            defaultSettingsProvider.setTheme(themeValue = themeValue)
+        }
     }
 }

@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -28,24 +29,49 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.peterchege.cartify.core.util.Screens
 import com.peterchege.cartify.core.util.UiEvent
 import com.peterchege.cartify.core.util.helperFunctions
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun LoginScreen(
+    navigateToSignUpScreen:() -> Unit,
+    navigateToDashboardScreen:() -> Unit,
+    viewModel: LoginScreenViewModel = hiltViewModel()
+){
+    val formState by viewModel.uiState.collectAsStateWithLifecycle()
+    LoginScreenContent(
+        formState = formState,
+        onChangeEmail = viewModel::onChangeEmail,
+        onChangePassword = viewModel::onChangePassword,
+        onSubmit = viewModel::loginUser,
+        eventFlow = viewModel.eventFlow,
+        navigateToSignUpScreen = navigateToSignUpScreen
+    )
+}
+
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalComposeUiApi
 @Composable
-fun LoginScreen(
-    navController: NavController,
-    viewModel: LoginScreenViewModel = hiltViewModel()
+fun LoginScreenContent(
+    formState: FormState,
+    onChangeEmail:(String)-> Unit,
+    onChangePassword:(String) -> Unit,
+    onSubmit:() -> Unit,
+    eventFlow:SharedFlow<UiEvent>,
+    navigateToSignUpScreen:() -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val scaffoldState = rememberScaffoldState()
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
-        viewModel.eventFlow.collectLatest { event ->
+        eventFlow.collectLatest { event ->
             when (event) {
                 is UiEvent.ShowSnackbar -> {
                     scaffoldState.snackbarHostState.showSnackbar(
@@ -53,7 +79,7 @@ fun LoginScreen(
                     )
                 }
                 is UiEvent.Navigate -> {
-                    navController.navigate(route = event.route)
+
                 }
             }
         }
@@ -68,7 +94,7 @@ fun LoginScreen(
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
-            if (viewModel.isLoading.value) {
+            if (formState.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
 
             }
@@ -82,9 +108,9 @@ fun LoginScreen(
 
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = viewModel.emailState.value,
+                    value = formState.email,
                     onValueChange = {
-                        viewModel.OnChangeEmail(it)
+                        onChangeEmail(it)
                     },
                     textStyle = TextStyle(
                         color = MaterialTheme.colors.primary
@@ -99,9 +125,9 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(15.dp))
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = viewModel.passwordState.value,
+                    value = formState.password,
                     onValueChange = {
-                        viewModel.OnChangePassword(it)
+                        onChangePassword(it)
 
                     },
                     textStyle = TextStyle(
@@ -116,17 +142,15 @@ fun LoginScreen(
                 )
                 Spacer(modifier = Modifier.height(15.dp))
                 Button(
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = MaterialTheme.colors.onBackground
                     ),
                     onClick = {
                         keyboardController?.hide()
-                        if (helperFunctions.hasInternetConnection(context = context)) {
-                            viewModel.loginUser()
-                        } else {
-                            viewModel.showNoInternetSnackBar()
-                        }
+                        onSubmit()
 
                     }
                 )
@@ -138,7 +162,7 @@ fun LoginScreen(
                 }
                 Spacer(modifier = Modifier.height(30.dp))
                 TextButton(onClick = {
-                    navController.navigate(Screens.SIGN_UP_SCREEN)
+                    navigateToSignUpScreen()
 
                 }) {
                     Text(

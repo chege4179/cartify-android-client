@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -32,24 +33,38 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.peterchege.cartify.presentation.components.CartIconComponent
+import com.peterchege.cartify.presentation.components.LoadingComponent
 import com.peterchege.cartify.presentation.components.ProductCard
-import com.peterchege.cartify.core.room.entities.toProduct
-import com.peterchege.cartify.core.util.Screens
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun WishListScreen(
+    navigateToCartScreen:() -> Unit,
+    navigateToProductScreen:(String) -> Unit,
+    wishListScreenViewModel: WishListScreenViewModel = hiltViewModel()
+){
+    val uiState by wishListScreenViewModel.uiState.collectAsStateWithLifecycle()
+    WishListScreenContent(
+        navigateToCartScreen = navigateToCartScreen,
+        navigateToProductScreen = navigateToProductScreen,
+        uiState = uiState,
+        deleteFromWishList = { wishListScreenViewModel.deleteWishListItem(it) }
+    )
+}
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalFoundationApi
 @Composable
-fun WishListScreen(
-    navController: NavController,
-    wishListScreenViewModel: WishListScreenViewModel = hiltViewModel()
+fun WishListScreenContent(
+    navigateToCartScreen:() -> Unit,
+    navigateToProductScreen:(String) -> Unit,
+    uiState: WishListScreenUiState,
+    deleteFromWishList:(String) -> Unit,
+
 ) {
     val scaffoldState = rememberScaffoldState()
-
-    val cart = wishListScreenViewModel.cart.collectAsStateWithLifecycle()
     Scaffold(
         scaffoldState=scaffoldState,
         modifier = Modifier.fillMaxSize(),
@@ -73,54 +88,67 @@ fun WishListScreen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp
                         )
-                        CartIconComponent(
-                            navController = navController,
-                            cartCount =cart.value.size
-                        )
+                        if (uiState is WishListScreenUiState.Success){
+                            CartIconComponent(
+                                navigateToCartScreen = navigateToCartScreen,
+                                cartCount = uiState.cart.size
+                            )
+                        }
+
                     }
                 }
             )
         }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 10.dp)
-                .padding(top = 10.dp)
-        ) {
-            if(wishListScreenViewModel.wishlist.value.isEmpty()){
-                Text("Your wishlist is empty")
-            }else{
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.background(MaterialTheme.colors.background)
-                ){
-                    items(items = wishListScreenViewModel.wishlist.value){ product ->
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            ProductCard(
-                                product = product.toProduct(),
-                                onNavigateToProductScreen = { id ->
-                                    navController.navigate(Screens.PRODUCT_SCREEN + "/${id}")
-                                },
-                                onAddToWishList = {
+        when(uiState){
+            is WishListScreenUiState.Loading -> {
+                LoadingComponent()
+            }
+            is WishListScreenUiState.Error -> {
 
-                                },
-                                removeFromWishList = {
-                                    wishListScreenViewModel.deleteProductfromRoom(it._id)
+            }
+            is WishListScreenUiState.Success -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 10.dp)
+                        .padding(top = 10.dp)
+                ) {
+                    if(uiState.wishlistItems.isEmpty()){
+                        Text("Your wishlist is empty")
+                    }else{
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            modifier = Modifier.background(MaterialTheme.colors.background)
+                        ){
+                            items(items = uiState.wishlistItems){ product ->
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    ProductCard(
+                                        product = product,
+                                        onNavigateToProductScreen = { id ->
+                                            navigateToProductScreen(id)
+                                        },
+                                        onAddToWishList = {
 
-                                },
-                                isWishList = true
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
+                                        },
+                                        removeFromWishList = {
+                                            deleteFromWishList(it._id)
+                                        },
+                                        isWishList = true
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                            }
+
                         }
                     }
 
                 }
             }
-
         }
+
 
 
 

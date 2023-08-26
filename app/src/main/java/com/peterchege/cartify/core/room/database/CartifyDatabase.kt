@@ -17,18 +17,26 @@ package com.peterchege.cartify.core.room.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.peterchege.cartify.core.room.dao.CachedProductDao
 import com.peterchege.cartify.core.room.dao.CartDao
-import com.peterchege.cartify.core.room.dao.ProductDao
+import com.peterchege.cartify.core.room.dao.SavedProductDao
+import com.peterchege.cartify.core.room.entities.CachedProductEntity
 import com.peterchege.cartify.core.room.entities.CartItem
-import com.peterchege.cartify.core.room.entities.ProductRoom
+import com.peterchege.cartify.core.room.entities.SavedProductEntity
 
 @Database(
-    entities = [ProductRoom::class, CartItem::class],
+    entities = [
+        CartItem::class,
+        SavedProductEntity::class,
+        CachedProductEntity::class
+    ],
     version = 1
 )
-abstract class CartifyDatabase: RoomDatabase() {
+abstract class CartifyDatabase : RoomDatabase() {
 
-    abstract val productDao: ProductDao
+    abstract val savedProductDao: SavedProductDao
 
     abstract val cartDao: CartDao
+
+    abstract val cachedProductDao:CachedProductDao
 }

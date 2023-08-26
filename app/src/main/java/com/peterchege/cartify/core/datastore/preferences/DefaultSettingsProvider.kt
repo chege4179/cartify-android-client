@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.map
 
 import javax.inject.Inject
 
-class UserSettingsPreferences @Inject constructor(
+class DefaultSettingsProvider @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) {
 

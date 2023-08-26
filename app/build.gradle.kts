@@ -25,12 +25,12 @@ plugins {
 }
 
 android {
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId= "com.peterchege.cartify"
         minSdk =21
-        targetSdk= 33
+        targetSdk= 34
         versionCode= 1
         versionName= "1.0"
 
@@ -77,17 +77,17 @@ kotlin {
 }
 dependencies {
 
-    implementation( "androidx.core:core-ktx:1.10.0")
-    implementation ("androidx.compose.ui:ui:1.5.0-alpha02")
-    implementation ("androidx.compose.material:material:1.5.0-alpha02")
-    implementation ("androidx.compose.ui:ui-tooling-preview:1.5.0-alpha02")
+    implementation( "androidx.core:core-ktx:1.10.1")
+    implementation ("androidx.compose.ui:ui:1.6.0-alpha03")
+    implementation ("androidx.compose.material:material:1.6.0-alpha03")
+    implementation ("androidx.compose.ui:ui-tooling-preview:1.6.0-alpha03")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation ("androidx.activity:activity-compose:1.7.0")
+    implementation ("androidx.activity:activity-compose:1.7.2")
     testImplementation ("junit:junit:4.13.2")
     androidTestImplementation ("androidx.test.ext:junit:1.1.5")
     androidTestImplementation ("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation ("androidx.compose.ui:ui-test-junit4:1.4.1")
-    debugImplementation ("androidx.compose.ui:ui-tooling:1.4.1")
+    androidTestImplementation ("androidx.compose.ui:ui-test-junit4:1.5.0")
+    debugImplementation ("androidx.compose.ui:ui-tooling:1.5.0")
 
 
     // retrofit
@@ -100,39 +100,37 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
 
     //coroutines
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
 
     // dagger hilt
     implementation ("com.google.dagger:hilt-android:2.45")
     kapt ("com.google.dagger:hilt-android-compiler:2.45")
-//    implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
     kapt ("androidx.hilt:hilt-compiler:1.0.0")
     implementation ("androidx.hilt:hilt-navigation-compose:1.0.0")
     // coil
-    implementation ("io.coil-kt:coil-compose:2.3.0")
+    implementation ("io.coil-kt:coil-compose:2.4.0")
 
     //fcm
-    implementation ("com.google.firebase:firebase-messaging:23.1.2")
+    implementation ("com.google.firebase:firebase-messaging:23.2.1")
 
     // room
-    implementation ("androidx.room:room-runtime:2.5.1")
-    kapt ("androidx.room:room-compiler:2.5.1")
-
-    // Kotlin Extensions and Coroutines support for Room
-    implementation ("androidx.room:room-ktx:2.5.1")
+    implementation ("androidx.room:room-runtime:2.5.2")
+    ksp ("androidx.room:room-compiler:2.5.2")
+    implementation ("androidx.room:room-ktx:2.5.2")
 
     // compose icons
-    implementation ("androidx.compose.material:material-icons-extended:1.4.1")
+    implementation ("androidx.compose.material:material-icons-extended:1.5.0")
     // glide
     implementation ("dev.chrisbanes.accompanist:accompanist-glide:0.5.1")
     //pager
     implementation ("com.google.accompanist:accompanist-pager:0.28.0")
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.28.0")
     // swipe refresh
-    implementation ("com.google.accompanist:accompanist-swiperefresh:0.27.1")
+    implementation ("com.google.accompanist:accompanist-swiperefresh:0.28.0")
     // landscapist
     implementation ("com.github.skydoves:landscapist-glide:2.1.8")
 
@@ -142,26 +140,29 @@ dependencies {
 
 
     implementation ("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
-    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 
     //splashscreen
-    implementation( "androidx.core:core-splashscreen:1.0.0")
+    implementation( "androidx.core:core-splashscreen:1.0.1")
 
     //navigation animation
     implementation ("com.google.accompanist:accompanist-navigation-animation:0.28.0")
 
     //paging 3
-    implementation ("androidx.paging:paging-runtime-ktx:3.1.1")
-    implementation ("androidx.paging:paging-compose:1.0.0-alpha18")
-    implementation ("androidx.profileinstaller:profileinstaller:1.3.0")
+    implementation ("androidx.paging:paging-runtime-ktx:3.2.0")
+    implementation ("androidx.paging:paging-compose:3.2.0")
+    implementation ("androidx.profileinstaller:profileinstaller:1.3.1")
+
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    implementation("androidx.hilt:hilt-work:1.0.0")
+    implementation("androidx.hilt:hilt-common:1.0.0")
 
     //chucker -for http logging
     debugImplementation ("com.github.chuckerteam.chucker:library:3.5.2")
 
     releaseImplementation ("com.github.chuckerteam.chucker:library-no-op:3.5.2")
 
-    implementation("com.github.skydoves:sealedx-core:1.0.1")
-    ksp("com.github.skydoves:sealedx-processor:1.0.1")
+
 
 
 

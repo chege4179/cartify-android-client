@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun OrderScreen(
-    navController: NavController,
+    navigateToCartScreen:() -> Unit,
     viewModel: OrderViewModel = hiltViewModel()
 ) {
     val cart = viewModel.cart.collectAsStateWithLifecycle()
@@ -70,8 +70,9 @@ fun OrderScreen(
                             fontSize = 20.sp,
                         )
                         CartIconComponent(
-                            navController = navController,
-                            cartCount =cart.value.size)
+                            cartCount =cart.value.size,
+                            navigateToCartScreen = navigateToCartScreen,
+                        )
                     }
                 }
             )

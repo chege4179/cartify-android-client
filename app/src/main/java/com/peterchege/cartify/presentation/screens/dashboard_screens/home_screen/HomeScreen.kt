@@ -28,6 +28,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -37,26 +38,46 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import com.peterchege.cartify.core.util.Screens
 import com.peterchege.cartify.core.util.categories
-import com.peterchege.cartify.domain.state.ProductsUiState
+import com.peterchege.cartify.domain.models.Product
 import com.peterchege.cartify.presentation.components.CartIconComponent
 import com.peterchege.cartify.presentation.components.CategoryCard
+import com.peterchege.cartify.presentation.components.LoadingComponent
 import com.peterchege.cartify.presentation.components.ProductCard
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun HomeScreen(
+    navigateToProductScreen:(String) -> Unit,
+    navigateToCartScreen:() -> Unit,
+    navigateToSearchScreen:() -> Unit,
+    viewModel: HomeScreenViewModel = hiltViewModel(),
+){
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    HomeScreenContent(
+        uiState = uiState,
+        navigateToProductScreen = navigateToProductScreen,
+        navigateToCartScreen = navigateToCartScreen,
+        navigateToSearchScreen = navigateToSearchScreen,
+        addToWishList = viewModel::addToWishList
+    )
+}
+
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalFoundationApi
 @Composable
-fun HomeScreen(
-    navController: NavController,
-    navHostController: NavController,
-    viewModel: HomeScreenViewModel = hiltViewModel(),
+fun HomeScreenContent(
+    uiState:HomeScreenUiState,
+    navigateToProductScreen:(String) -> Unit,
+    navigateToCartScreen:() -> Unit,
+    navigateToSearchScreen:() -> Unit,
+    addToWishList:(Product) -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState()
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
-    val cart = viewModel.cart.collectAsStateWithLifecycle()
+
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -81,7 +102,7 @@ fun HomeScreen(
                         )
                         IconButton(
                             onClick = {
-                                navHostController.navigate(route = Screens.SEARCH_SCREEN)
+                                navigateToSearchScreen()
                             }) {
                             Icon(
                                 imageVector = Icons.Default.Search,
@@ -90,10 +111,13 @@ fun HomeScreen(
                                 tint = MaterialTheme.colors.primary
                             )
                         }
-                        CartIconComponent(
-                            navController = navHostController,
-                            cartCount = cart.value.size
-                        )
+                        if (uiState is HomeScreenUiState.Success){
+                            CartIconComponent(
+                                navigateToCartScreen = navigateToCartScreen,
+                                cartCount = uiState.cart.size
+                            )
+                        }
+
                     }
 
                 },
@@ -105,34 +129,22 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             when (uiState) {
-                is ProductsUiState.Idle -> {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colors.primary,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .testTag("loader")
-                    )
-                }
 
-                is ProductsUiState.Loading -> {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colors.primary,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .testTag("loader")
-                    )
+
+                is HomeScreenUiState.Loading -> {
+                    LoadingComponent()
                 }
-                is ProductsUiState.Error -> {
+                is HomeScreenUiState.Error -> {
                     Text(
                         modifier = Modifier
                             .align(Alignment.Center)
                             .testTag("Error Message"),
                         style = TextStyle(color = MaterialTheme.colors.primary),
-                        text = uiState.errorMessage
+                        text = uiState.message
                     )
 
                 }
-                is ProductsUiState.Success -> {
+                is HomeScreenUiState.Success -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -146,7 +158,9 @@ fun HomeScreen(
                                 .padding(bottom = 2.dp)
                         ) {
                             items(items = categories) { category ->
-                                CategoryCard(navController = navController, categoryItem = category)
+                                CategoryCard(
+                                    categoryItem = category
+                                )
 
                             }
 
@@ -157,21 +171,18 @@ fun HomeScreen(
                                 .background(color = MaterialTheme.colors.background)
                                 .testTag(tag = "products_list")
                         ) {
-                            items(items = uiState.data.products) { product ->
+                            items(items = uiState.products) { product ->
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     ProductCard(
                                         product = product,
                                         onNavigateToProductScreen = { id ->
-                                            navHostController.navigate(Screens.PRODUCT_SCREEN + "/${id}")
+                                            navigateToProductScreen(id)
 
                                         },
                                         onAddToWishList = {
-                                            viewModel.addToWishList(
-                                                it,
-                                                scaffoldState = scaffoldState
-                                            )
+                                            addToWishList(it)
                                         },
                                         removeFromWishList = {
 

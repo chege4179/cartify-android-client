@@ -16,8 +16,13 @@
 package com.peterchege.cartify.presentation
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.peterchege.cartify.core.util.Constants
 import com.peterchege.cartify.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import java.lang.invoke.ConstantCallSite
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,5 +31,10 @@ class MainViewModel @Inject constructor(
 ) :ViewModel(){
 
     val theme = settingsRepository.getTheme()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = Constants.DARK_MODE
+        )
 
 }

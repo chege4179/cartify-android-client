@@ -23,122 +23,113 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.peterchege.cartify.core.api.CartifyApi
+import com.peterchege.cartify.core.api.NetworkResult
 import com.peterchege.cartify.core.api.requests.SignUpUser
 import com.peterchege.cartify.core.util.Screens
 import com.peterchege.cartify.core.util.UiEvent
 import com.peterchege.cartify.core.util.helperFunctions
+import com.peterchege.cartify.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
+data class SignUpFormState(
+    val isLoading:Boolean = false,
+    val fullName:String = "",
+    val address:String = "",
+    val email:String = "",
+    val phoneNumber:String = "",
+    val password:String = "",
+    val passwordConfirm:String = "",
+)
 
 @HiltViewModel
 class SignUpScreenViewModel @Inject constructor(
-    private val api: CartifyApi
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
-    private var _isLoading = mutableStateOf(false)
-    var isLoading: State<Boolean> = _isLoading
 
-    private var _fullNameState = mutableStateOf("")
-    var fullNameState: State<String> = _fullNameState
-
-    private var _addressState = mutableStateOf("")
-    var addressState: State<String> = _addressState
-
-    private var _emailState = mutableStateOf("")
-    var emailState: State<String> = _emailState
-
-    private var _phoneNumberState = mutableStateOf("")
-    var phoneNumberState: State<String> = _phoneNumberState
-
-    private var _passwordState = mutableStateOf("")
-    var passwordState: State<String> = _passwordState
-
-
-    private var _confirmPasswordState = mutableStateOf("")
-    var confirmPasswordState: State<String> = _confirmPasswordState
+    private val _uiState = MutableStateFlow(SignUpFormState())
+    val uiState = _uiState.asStateFlow()
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
 
-    fun OnChangeFullname(text: String) {
-        _fullNameState.value = text
+    fun onChangeFullname(text: String) {
+        _uiState.value = _uiState.value.copy(fullName = text)
     }
 
-    fun OnChangeAddress(text: String) {
-        _addressState.value = text
+    fun onChangeAddress(text: String) {
+        _uiState.value = _uiState.value.copy(address = text)
     }
 
-    fun OnChangePassword(text: String) {
-        _passwordState.value = text
-
-    }
-
-    fun OnChangeConfirmPassword(text: String) {
-        _confirmPasswordState.value = text
+    fun onChangePassword(text: String) {
+        _uiState.value = _uiState.value.copy(password = text)
 
     }
 
-    fun OnChangeEmail(text: String) {
-        _emailState.value = text
+    fun onChangeConfirmPassword(text: String) {
+        _uiState.value = _uiState.value.copy(passwordConfirm = text)
 
     }
 
-    fun OnChangePhoneNumber(text: String) {
-        _phoneNumberState.value = text
+    fun onChangeEmail(text: String) {
+        _uiState.value = _uiState.value.copy(email = text)
 
     }
 
-    fun signUpUser() {
+    fun onChangePhoneNumber(text: String) {
+        _uiState.value = _uiState.value.copy(phoneNumber = text)
+
+    }
+
+    fun signUpUser(navigateToLoginScreen:() -> Unit) {
         viewModelScope.launch {
-            _isLoading.value = true
-            if (_passwordState.value != _confirmPasswordState.value) {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            if (_uiState.value.password != _uiState.value.password) {
                 _eventFlow.emit(UiEvent.ShowSnackbar(uiText = "Passwords don't match"))
 
             } else {
-                try {
-                    val signUpUser = SignUpUser(
-                        fullname = _fullNameState.value,
-                        email = _emailState.value,
-                        phoneNumber = _phoneNumberState.value,
-                        password = _passwordState.value,
-                        address = _addressState.value
-                    )
-                    val response = api.signUpUser(signUpUser = signUpUser)
-                    _isLoading.value = false
-                    _eventFlow.emit(UiEvent.ShowSnackbar(uiText = response.msg))
-                    if (response.success) {
-                        _eventFlow.emit(UiEvent.Navigate(route = Screens.LOGIN_SCREEN))
-
+                val signUpUser = SignUpUser(
+                    fullname = _uiState.value.fullName,
+                    email = _uiState.value.email,
+                    phoneNumber = _uiState.value.phoneNumber,
+                    password = _uiState.value.password,
+                    address = _uiState.value.address
+                )
+                val response = authRepository.signUpUser(signUpUser = signUpUser)
+                when(response){
+                    is NetworkResult.Success -> {
+                        _uiState.value = _uiState.value.copy(isLoading = false)
+                        _eventFlow.emit(UiEvent.ShowSnackbar(uiText = response.data.msg))
+                        if (response.data.success) {
+                            navigateToLoginScreen()
+                        }
                     }
-                } catch (e: HttpException) {
-                    _isLoading.value = false
-                    _eventFlow.emit(
-                        UiEvent.ShowSnackbar(
-                            uiText = e.localizedMessage ?: "Server down... Please try again later"
+                    is NetworkResult.Error -> {
+                        _uiState.value = _uiState.value.copy(isLoading = false)
+                        _eventFlow.emit(
+                            UiEvent.ShowSnackbar(
+                                uiText = "Server down... Please try again later"
+                            )
                         )
-                    )
-
-                } catch (e: IOException) {
-                    _isLoading.value = false
-                    _eventFlow.emit(
-                        UiEvent.ShowSnackbar(
-                            uiText = e.localizedMessage ?: "An unexpected error occurred"
+                    }
+                    is NetworkResult.Exception -> {
+                        _uiState.value = _uiState.value.copy(isLoading = false)
+                        _eventFlow.emit(
+                            UiEvent.ShowSnackbar(
+                                uiText =  "An unexpected error occurred"
+                            )
                         )
-                    )
-
-
+                    }
                 }
             }
-
-
         }
-
     }
-
 }

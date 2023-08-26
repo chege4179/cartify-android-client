@@ -16,21 +16,30 @@
 package com.peterchege.cartify.data
 
 import com.peterchege.cartify.core.api.CartifyApi
+import com.peterchege.cartify.core.api.NetworkResult
 import com.peterchege.cartify.core.api.requests.OrderBody
 import com.peterchege.cartify.core.api.responses.AllMyOrdersResponse
 import com.peterchege.cartify.core.api.responses.OrderResponse
+import com.peterchege.cartify.core.api.safeApiCall
+import com.peterchege.cartify.core.di.IoDispatcher
 import com.peterchege.cartify.core.room.database.CartifyDatabase
 import com.peterchege.cartify.domain.repository.OrderRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class OrderRepositoryImpl @Inject constructor(
     private val api: CartifyApi,
-    private val db: CartifyDatabase
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ):OrderRepository {
-    override suspend fun addOrder(orderBody: OrderBody): OrderResponse {
-        return api.addOrder(orderBody = orderBody)
+    override suspend fun addOrder(orderBody: OrderBody): NetworkResult<OrderResponse> {
+        return withContext(ioDispatcher){
+            safeApiCall { api.addOrder(orderBody = orderBody) }
+        }
     }
-    override suspend fun getAllUserOrders(id:String): AllMyOrdersResponse {
-        return api.getMyOrders(id)
+    override suspend fun getAllUserOrders(id:String): NetworkResult<AllMyOrdersResponse> {
+        return withContext(ioDispatcher){
+            safeApiCall { api.getMyOrders(id) }
+        }
     }
 }

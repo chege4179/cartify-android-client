@@ -15,8 +15,6 @@
  */
 package com.peterchege.cartify.domain.models
 
-import com.peterchege.cartify.core.room.entities.ProductRoom
-
 
 data class Product(
     val __v: Int,

@@ -21,6 +21,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -35,19 +37,66 @@ import com.peterchege.cartify.presentation.components.CartIconComponent
 import com.peterchege.cartify.presentation.components.CartItemCard
 import com.peterchege.cartify.presentation.components.SubtotalCard
 import com.peterchege.cartify.core.util.Screens
+import com.peterchege.cartify.core.util.UiEvent
+import com.peterchege.cartify.presentation.components.LoadingComponent
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
+
+@Composable
+fun CartScreen(
+    navigateToProductScreen: (String) -> Unit,
+    viewModel: CartScreenViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    CartScreenContent(
+        uiState = uiState,
+        eventFlow = viewModel.eventFlow,
+        isLoading = viewModel.isLoading.value,
+        removeFromCart = {
+            viewModel.removeFromCart(it)
+        },
+        reduceCartItemQuantity = { quantity, id ->
+            viewModel.reduceCartItemQuantity(quantity, id)
+        },
+        increaseCartItemQuantity = { quantity, id ->
+            viewModel.increaseCartItemQuantity(quantity, id)
+        },
+        processOrder = { /*TODO*/ },
+        navigateToProductScreen = navigateToProductScreen
+    )
+}
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun CartScreen(
-    navController: NavController,
-    viewModel: CartScreenViewModel = hiltViewModel()
+fun CartScreenContent(
+    uiState: CartScreenUiState,
+    eventFlow: SharedFlow<UiEvent>,
+    isLoading: Boolean,
+    removeFromCart: (String) -> Unit,
+    reduceCartItemQuantity: (Int, String) -> Unit,
+    increaseCartItemQuantity: (Int, String) -> Unit,
+    processOrder: () -> Unit,
+    navigateToProductScreen: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
 
-    val cart = viewModel.cart.collectAsStateWithLifecycle()
-    val user = viewModel.user.collectAsStateWithLifecycle(initialValue = null)
+    LaunchedEffect(key1 = true) {
+        eventFlow.collectLatest { event ->
+            when (event) {
+                is UiEvent.ShowSnackbar -> {
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = event.uiText
+                    )
+                }
+
+                is UiEvent.Navigate -> {}
+            }
+        }
+    }
+
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
@@ -70,69 +119,86 @@ fun CartScreen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp
                         )
-                        CartIconComponent(
-                            navController = navController,
-                            cartCount =cart.value.size)
+                        if (uiState is CartScreenUiState.Success) {
+                            CartIconComponent(
+                                navigateToCartScreen = { },
+                                cartCount = uiState.cart.size
+                            )
+                        }
+
                     }
                 }
             )
         },
         modifier = Modifier.fillMaxSize()
     ) {
-        Box(modifier = Modifier.fillMaxSize()){
-            if (viewModel.isLoading.value){
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(10.dp)
-            ){
-                items(items = cart.value){ cartItem ->
-                    CartItemCard(
-                        cartItem = cartItem,
-                        onProductNavigate ={
-                            navController.navigate(Screens.PRODUCT_SCREEN + "/$it")
-
-                        },
-                        onRemoveCartItem = {
-                            viewModel.removeFromCart(it)
-                        },
-                        onIncreaseAmount = { quantity,id ->
-                            viewModel.increaseCartItemQuantity(quantity = quantity, id = id)
-
-                        },
-                        onReduceAmount = { quantity,id ->
-                            viewModel.reduceCartItemQuantity(quantity = quantity,id = id)
-
-                        },
-                    )
+            when (uiState) {
+                is CartScreenUiState.Loading -> {
+                    LoadingComponent()
                 }
-                
-                item {
-                    if(cart.value.isNotEmpty()){
-                        val sum = cart.value.map { it.quantity * it.price }.sum()
-                        SubtotalCard(
-                            total = sum,
-                            isLoggedIn = user.value != null ,
-                            proceedToCheckOut ={
-                                viewModel.proceedToOrder(
-                                    total = it,
-                                    context = context,
-                                    scaffoldState = scaffoldState,
-                                )
 
+                is CartScreenUiState.Error -> {
+
+                }
+
+                is CartScreenUiState.Success -> {
+                    val cart = uiState.cart
+                    val user = uiState.user
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(10.dp)
+                    ) {
+                        items(items = cart) { cartItem ->
+                            CartItemCard(
+                                cartItem = cartItem,
+                                onProductNavigate = {
+                                    navigateToProductScreen(it)
+                                },
+                                onRemoveCartItem = {
+                                    removeFromCart(it)
+                                },
+                                onIncreaseAmount = { quantity, id ->
+                                    increaseCartItemQuantity(quantity, id)
+
+                                },
+                                onReduceAmount = { quantity, id ->
+                                    reduceCartItemQuantity(quantity, id)
+
+                                },
+                            )
+                        }
+
+                        item {
+                            if (cart.isNotEmpty()) {
+                                val sum = cart.sumOf { it.quantity * it.price }
+                                SubtotalCard(
+                                    total = sum,
+                                    isLoggedIn = user != null,
+                                    proceedToCheckOut = {
+//                                        proceedToOrder(
+//                                            total = it,
+//
+//                                        )
+
+                                    }
+                                )
+                            } else {
+                                Text(
+                                    text = "Your cart is empty",
+                                    style = TextStyle(color = MaterialTheme.colors.primary),
+                                )
                             }
-                        )
-                    }else{
-                        Text(
-                            text = "Your cart is empty",
-                            style = TextStyle(color = MaterialTheme.colors.primary),
-                        )
+                        }
+
                     }
                 }
-
             }
+
         }
     }
 }

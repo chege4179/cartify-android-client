@@ -15,39 +15,63 @@
  */
 package com.peterchege.cartify.data
 
-import com.peterchege.cartify.core.api.CartifyApi
+import com.peterchege.cartify.core.api.NetworkResult
 import com.peterchege.cartify.core.api.responses.AllProductsResponse
-import com.peterchege.cartify.core.api.responses.ProductByIdResponse
+import com.peterchege.cartify.data.local.cached_products.CachedProductsDataSource
+import com.peterchege.cartify.data.local.saved_products.SavedProductsDataSource
+import com.peterchege.cartify.data.remote.RemoteProductsDataSource
+import com.peterchege.cartify.domain.mappers.toExternalModel
 import com.peterchege.cartify.domain.models.Product
-import com.peterchege.cartify.core.room.database.CartifyDatabase
-import com.peterchege.cartify.core.room.entities.ProductRoom
-import com.peterchege.cartify.domain.mappers.toProductRoom
 import com.peterchege.cartify.domain.repository.ProductRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class ProductRepositoryImpl @Inject constructor(
-    private val api: CartifyApi,
-    private val db: CartifyDatabase
+    private val savedProductsDataSource: SavedProductsDataSource,
+    private val cachedProductsDataSource: CachedProductsDataSource,
+    private val remoteProductsDataSource: RemoteProductsDataSource,
 ):ProductRepository {
-    override suspend fun getAllProducts(): AllProductsResponse {
-        return api.getAllProducts()
+    override  fun getAllProducts():Flow<List<Product>>{
+        return cachedProductsDataSource.getAllCachedProducts().map { it.map { it.toExternalModel() } }
     }
-    override suspend fun getProductById(id:String): ProductByIdResponse {
-        return api.getProductById(id)
 
+    override suspend fun searchProducts(query:String): NetworkResult<AllProductsResponse> {
+        return remoteProductsDataSource.searchProduct(query = query)
+    }
+    override fun getProductById(id:String): Flow<Product?> = flow {
+        val cachedProduct = cachedProductsDataSource.getCachedProductById(id)
+            .map { it?.toExternalModel() }.first()
+        if (cachedProduct != null){
+            emit(cachedProduct)
+        }else{
+            val remoteProductResponse = remoteProductsDataSource.getProductById(id)
+            when(remoteProductResponse){
+                is NetworkResult.Success -> {
+                    emit(remoteProductResponse.data.product)
+                }
+                is NetworkResult.Error -> {
+                    emit(null)
+                }
+                is NetworkResult.Exception -> {
+                    emit(null)
+                }
+            }
+        }
     }
     override suspend fun addProductToWishList(product: Product){
-        return db.productDao.insertProduct(productRoom = product.toProductRoom())
+        return savedProductsDataSource.addProductToWishList(product)
     }
-    override fun getWishListProducts(): Flow<List<ProductRoom>> {
-        return db.productDao.getProducts()
+    override fun getWishListProducts(): Flow<List<Product>> {
+        return savedProductsDataSource.getWishListProducts().map { it.map { it.toExternalModel() } }
     }
     override suspend fun deleteWishListProductById(id:String){
-        return db.productDao.deleteProductById(id)
+        return savedProductsDataSource.deleteWishListProductById(id)
     }
     override suspend fun deleteAllWishListProducts(){
-        return db.productDao.deleteAllProduct()
+        return savedProductsDataSource.deleteAllWishListProducts()
     }
 
 

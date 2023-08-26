@@ -65,8 +65,8 @@ fun ProfileScreen(
                             style = TextStyle(color = MaterialTheme.colors.primary)
                         )
                         CartIconComponent(
-                            navController = navHostController,
-                            cartCount = cart.value.size
+                            cartCount = cart.value.size,
+                            navigateToCartScreen = {  }
                         )
                     }
                 }

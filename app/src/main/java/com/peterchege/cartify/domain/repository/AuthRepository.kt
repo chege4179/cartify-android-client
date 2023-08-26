@@ -15,10 +15,18 @@
  */
 package com.peterchege.cartify.domain.repository
 
+import com.peterchege.cartify.core.api.NetworkResult
+import com.peterchege.cartify.core.api.requests.LoginUser
+import com.peterchege.cartify.core.api.requests.SignUpUser
+import com.peterchege.cartify.core.api.responses.LoginResponse
+import com.peterchege.cartify.core.api.responses.SignUpResponse
 import com.peterchege.cartify.domain.models.User
 import kotlinx.coroutines.flow.Flow
 
-interface UserRepository {
+interface AuthRepository {
+
+    suspend fun loginUser(loginUser: LoginUser): NetworkResult<LoginResponse>
+    suspend fun signUpUser(signUpUser: SignUpUser):NetworkResult<SignUpResponse>
 
     fun getCurrentUser(): Flow<User?>
 

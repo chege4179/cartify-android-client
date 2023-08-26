@@ -41,7 +41,7 @@ import com.peterchege.cartify.domain.models.CategoryItem
 
 @Composable
 fun CategoryCard(
-    navController: NavController,
+
     modifier: Modifier = Modifier,
     categoryItem: CategoryItem
 ) {

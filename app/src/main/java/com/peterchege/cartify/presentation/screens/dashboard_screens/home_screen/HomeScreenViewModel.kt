@@ -15,105 +15,67 @@
  */
 package com.peterchege.cartify.presentation.screens.dashboard_screens.home_screen
 
-import android.content.Context
-import android.util.Log
-import androidx.compose.material.ScaffoldState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.peterchege.cartify.core.api.CartifyApi
-import com.peterchege.cartify.core.util.Resource
-import com.peterchege.cartify.core.util.helperFunctions
+import com.peterchege.cartify.core.room.entities.CartItem
+import com.peterchege.cartify.core.util.UiEvent
 import com.peterchege.cartify.domain.models.Product
 import com.peterchege.cartify.domain.repository.CartRepository
 import com.peterchege.cartify.domain.repository.ProductRepository
-import com.peterchege.cartify.domain.state.Products
-import com.peterchege.cartify.domain.state.ProductsUiState
-import com.peterchege.cartify.domain.use_cases.GetProductsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
+sealed interface HomeScreenUiState {
+    object Loading:HomeScreenUiState
 
+    data class Success(val cart:List<CartItem>,val products:List<Product>):HomeScreenUiState
+
+    data class Error(val message:String):HomeScreenUiState
+}
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
     private val productRepository: ProductRepository,
     private val cartRepository: CartRepository,
-    private val api: CartifyApi,
-    private val getAllProductsUseCase: GetProductsUseCase,
-
     ) : ViewModel() {
 
-    val productsUseCase = getAllProductsUseCase()
+    private val _eventFlow = MutableSharedFlow<UiEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
+
+    val uiState = combine(
+        productRepository.getAllProducts(),
+        cartRepository.getCart()
+    ){ products,cart ->
+        HomeScreenUiState.Success(cart = cart,products = products)
+    }
+        .onStart { HomeScreenUiState.Loading }
+        .catch { HomeScreenUiState.Error(message = "An error occurred") }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = Resource.Loading()
-        )
-
-    private val _uiState =
-        MutableStateFlow<ProductsUiState>(ProductsUiState.Idle(message = "Loading"))
-    val uiState = _uiState.asStateFlow()
-
-
-    val cart = cartRepository.getCart()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = emptyList()
+            initialValue = HomeScreenUiState.Loading
         )
 
 
 
-
-
-
-
-    fun addToWishList(product: Product, scaffoldState: ScaffoldState) {
+    fun addToWishList(product: Product) {
         viewModelScope.launch {
             try {
                 productRepository.addProductToWishList(product = product)
-                scaffoldState.snackbarHostState.showSnackbar(
-                    message = "${product.name} added to your wishList"
-                )
-
-            } catch (e: IOException) {
-
-            }
-        }
-    }
-
-
-    init {
-        getProducts()
-
-    }
-
-
-    private fun getProducts() {
-        viewModelScope.launch {
-            _uiState.value = ProductsUiState.Loading(message = "Loading")
-            try {
-                val response = productRepository.getAllProducts()
-                _uiState.value = ProductsUiState.Success(data = Products(products = response.products))
-
-            } catch (e: HttpException) {
-                _uiState.value = ProductsUiState.Error(errorMessage = "Please check your internet connection")
+                _eventFlow.emit(UiEvent.ShowSnackbar(uiText = "${product.name} added to your wishList"))
 
 
             } catch (e: IOException) {
-                _uiState.value = ProductsUiState.Error(errorMessage = "Server down please try again later")
+                _eventFlow.emit(UiEvent.ShowSnackbar(uiText = "Error saving to wishlist"))
             }
         }
     }
-
 }

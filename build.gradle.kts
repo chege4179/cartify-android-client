@@ -22,7 +22,7 @@ buildscript {
         classpath("com.google.gms:google-services:4.3.15")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
         classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlin_version")
-        classpath("org.jlleitschuh.gradle:ktlint-gradle:11.2.0")
+        classpath("org.jlleitschuh.gradle:ktlint-gradle:11.4.0")
     }
 } // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {

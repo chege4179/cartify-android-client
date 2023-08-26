@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,24 +44,43 @@ import coil.compose.rememberImagePainter
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.peterchege.cartify.domain.models.Product
 import com.peterchege.cartify.presentation.components.CartIconComponent
+import com.peterchege.cartify.presentation.components.LoadingComponent
 import com.peterchege.cartify.presentation.components.PagerIndicator
 import com.peterchege.cartify.presentation.theme.Grey100
 import kotlinx.coroutines.launch
+
+@ExperimentalCoilApi
+@ExperimentalPagerApi
+@Composable
+fun ProductScreen(
+    navigateToCartScreen: () -> Unit,
+    viewModel: ProductScreenViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    ProductScreenContent(
+        uiState = uiState,
+        addToCart = viewModel::addToCart,
+        navigateToCartScreen = navigateToCartScreen,
+        addToWishList = viewModel::addToWishList
+    )
+
+}
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalCoilApi
 @ExperimentalPagerApi
-
 @Composable
-fun ProductScreen(
-    navController: NavController,
-    navHostController: NavController,
-    viewModel: ProductScreenViewModel = hiltViewModel()
+fun ProductScreenContent(
+    uiState: ProductScreenUiState,
+    addToCart: (Product) -> Unit,
+    navigateToCartScreen :() -> Unit,
+    addToWishList:(Product) ->Unit,
 ) {
     val scaffoldState = rememberScaffoldState()
-    val cart = viewModel.cart.collectAsStateWithLifecycle()
     Scaffold(
         scaffoldState = scaffoldState,
         modifier = Modifier.fillMaxSize(),
@@ -68,7 +88,7 @@ fun ProductScreen(
             TopAppBar(
                 backgroundColor = MaterialTheme.colors.onBackground,
                 title = {
-                    viewModel.product.value?.let {
+                    if (uiState is ProductScreenUiState.Success) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -80,165 +100,173 @@ fun ProductScreen(
                             ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(0.87f),
-                                text = it.name,
+                                text = uiState.product.name,
                                 style = TextStyle(color = MaterialTheme.colors.primary)
                             )
                             CartIconComponent(
-                                navController = navHostController,
-                                cartCount =cart.value.size )
+                                navigateToCartScreen = navigateToCartScreen,
+                                cartCount = uiState.cart.size
+                            )
+
+
                         }
                     }
                 }
             )
         }
     ) {
-        viewModel.product.value?.let { product ->
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                item {
-                    val pagerState1 = rememberPagerState(initialPage = 0)
-                    val coroutineScope = rememberCoroutineScope()
-                    HorizontalPager(
-                        count = product.images.size,
-                        state = pagerState1
-                    ) { image ->
-                        Box(
-                            modifier = Modifier.fillMaxWidth()
-                        ){
-                            SubcomposeAsyncImage(
-                                model = product.images[image].url,
-                                loading = {
-                                    Box(modifier = Modifier.fillMaxSize()) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.align(
-                                                Alignment.Center
+        when(uiState){
+            is ProductScreenUiState.Loading -> {
+                LoadingComponent()
+            }
+            is ProductScreenUiState.Error -> {
+
+            }
+            is ProductScreenUiState.Success -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    item {
+                        val pagerState1 = rememberPagerState(initialPage = 0)
+                        val coroutineScope = rememberCoroutineScope()
+                        HorizontalPager(
+                            count = uiState.product.images.size,
+                            state = pagerState1
+                        ) { image ->
+                            Box(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                SubcomposeAsyncImage(
+                                    model = uiState.product.images[image].url,
+                                    loading = {
+                                        Box(modifier = Modifier.fillMaxSize()) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.align(
+                                                    Alignment.Center
+                                                )
                                             )
-                                        )
-                                    }
-                                },
-                                contentScale = ContentScale.Crop,
+                                        }
+                                    },
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(300.dp),
+                                    contentDescription = "Product Images"
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .padding(10.dp)
+                                        .width(45.dp)
+                                        .align(Alignment.TopEnd)
+                                        .height(25.dp)
+                                        .clip(RoundedCornerShape(15.dp))
+                                        .background(Color.White)
+
+                                ) {
+                                    Text(
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .padding(horizontal = 3.dp),
+                                        textAlign = TextAlign.Start,
+                                        fontSize = 17.sp,
+                                        text = "${image + 1}/${uiState.product.images}",
+                                        style = TextStyle(color = MaterialTheme.colors.primary)
+                                    )
+                                }
+
+                            }
+
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(20.dp)
+                        ) {
+                            PagerIndicator(
+                                modifier = Modifier.align(Alignment.Center),
+                                pagerState = pagerState1
+                            ) {
+                                coroutineScope.launch {
+                                    pagerState1.scrollToPage(it)
+                                }
+                            }
+                        }
+                    }
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+
+                        ) {
+                            Text(
+                                text = uiState.product.name,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Start,
+                                fontSize = 20.sp,
+                                style = TextStyle(color = MaterialTheme.colors.primary)
+                            )
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                fontWeight = FontWeight.Bold,
+                                text = "Ksh ${uiState.product.price} /=",
+                                fontSize = 25.sp,
+                                style = TextStyle(color = MaterialTheme.colors.primary)
+                            )
+                            Text(
+                                text = "Description :",
+                                style = TextStyle(color = MaterialTheme.colors.primary)
+                            )
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = uiState.product.description,
+                                style = TextStyle(color = MaterialTheme.colors.primary)
+
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Button(
+                                colors = ButtonDefaults.buttonColors(
+                                    backgroundColor = MaterialTheme.colors.onBackground
+                                ),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(300.dp),
-                                contentDescription = "Product Images"
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .padding(10.dp)
-                                    .width(45.dp)
-                                    .align(Alignment.TopEnd)
-                                    .height(25.dp)
-                                    .clip(RoundedCornerShape(15.dp))
-                                    .background(Color.White)
+                                    .height(50.dp),
+                                shape = RoundedCornerShape(20),
+                                onClick = {
+                                    addToCart(uiState.product)
 
-                            ){
+                                }) {
                                 Text(
-                                    modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .padding(horizontal = 3.dp),
-                                    textAlign = TextAlign.Start,
-                                    fontSize = 17.sp,
-                                    text = "${image + 1}/${product.images.size}",
+                                    text = "Add To Cart",
                                     style = TextStyle(color = MaterialTheme.colors.primary)
                                 )
+
                             }
+                            Spacer(modifier = Modifier.height(15.dp))
 
-                        }
+                            Button(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    backgroundColor = MaterialTheme.colors.onBackground
+                                ),
+                                shape = RoundedCornerShape(20),
+                                onClick = {
+                                    addToWishList(uiState.product)
 
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(20.dp)
-                    ) {
-                        PagerIndicator(
-                            modifier = Modifier.align(Alignment.Center),
-                            pagerState = pagerState1
-                        ) {
-                            coroutineScope.launch {
-                                pagerState1.scrollToPage(it)
+                                }) {
+                                Text(
+                                    text = "Add To WishList",
+                                    style = TextStyle(color = MaterialTheme.colors.primary)
+                                )
+
                             }
-                        }
-                    }
-                }
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-
-                    ) {
-                        Text(
-                            text = product.name,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Start,
-                            fontSize = 20.sp,
-                            style = TextStyle(color = MaterialTheme.colors.primary)
-                        )
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            fontWeight = FontWeight.Bold,
-                            text = "Ksh ${product.price} /=",
-                            fontSize = 25.sp,
-                            style = TextStyle(color = MaterialTheme.colors.primary)
-                        )
-                        Text(
-                            text = "Description :",
-                            style = TextStyle(color = MaterialTheme.colors.primary)
-                        )
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = product.description,
-                            style = TextStyle(color = MaterialTheme.colors.primary)
-
-                            )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Button(
-                            colors = ButtonDefaults.buttonColors(
-                                backgroundColor = MaterialTheme.colors.onBackground
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            shape = RoundedCornerShape(20),
-                            onClick = {
-                            viewModel.addToCart()
-
-                        }) {
-                            Text(
-                                text = "Add To Cart",
-                                style = TextStyle(color = MaterialTheme.colors.primary)
-                            )
-
-                        }
-                        Spacer(modifier = Modifier.height(15.dp))
-
-                        Button(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp)
-                            ,
-                            colors = ButtonDefaults.buttonColors(
-                                backgroundColor = MaterialTheme.colors.onBackground
-                            ),
-                            shape = RoundedCornerShape(20),
-                            onClick = {
-                            viewModel.addToWishList(
-                                product = product,
-                                scaffoldState = scaffoldState
-                            )
-
-                        }) {
-                            Text(
-                                text = "Add To WishList",
-                                style = TextStyle(color = MaterialTheme.colors.primary)
-                            )
-
                         }
                     }
                 }
             }
         }
+
     }
 }

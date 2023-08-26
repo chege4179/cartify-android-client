@@ -158,18 +158,25 @@ fun DashboardNavigation(
         composable(
             route = Screens.HOME_SCREEN
         ){
-            HomeScreen(navController = navController,navHostController = navHostController)
+            HomeScreen(
+                navigateToProductScreen = navHostController::navigateToProductScreen,
+                navigateToSearchScreen = navHostController::navigateToSearchScreen,
+                navigateToCartScreen = navHostController::navigateToCartScreen
+            )
         }
         composable(
                 route = Screens.WISHLIST_SCREEN
         ){
-            WishListScreen(navController = navHostController)
+            WishListScreen(
+                navigateToProductScreen = navHostController::navigateToProductScreen,
+                navigateToCartScreen = navHostController::navigateToCartScreen
+            )
         }
 
         composable(
             route = Screens.ORDERS_SCREEN
         ){
-            OrderScreen(navController=  navHostController)
+            OrderScreen(navigateToCartScreen = navHostController::navigateToCartScreen)
         }
         composable(
             route = Screens.PROFILE_SCREEN
@@ -179,4 +186,27 @@ fun DashboardNavigation(
 
     }
 
+}
+
+fun NavController.navigateToSearchScreen(){
+    navigate(Screens.SEARCH_SCREEN)
+}
+
+fun NavController.navigateToCartScreen(){
+    navigate(Screens.CART_SCREEN)
+}
+
+fun NavController.navigateToProductScreen(productId:String){
+    navigate(Screens.PRODUCT_SCREEN + "/$productId")
+}
+
+fun NavController.navigateToLoginScreen(){
+    navigate(Screens.LOGIN_SCREEN )
+}
+fun NavController.navigateToDashboardScreen(){
+    navigate(Screens.DASHBOARD_SCREEN)
+}
+
+fun NavController.navigateToSignUpScreen(){
+    navigate(Screens.SIGN_UP_SCREEN )
 }

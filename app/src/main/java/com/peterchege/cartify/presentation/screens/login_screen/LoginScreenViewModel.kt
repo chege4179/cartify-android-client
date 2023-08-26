@@ -15,81 +15,81 @@
  */
 package com.peterchege.cartify.presentation.screens.login_screen
 
-import android.content.Context
-import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import com.peterchege.cartify.core.api.CartifyApi
+import com.peterchege.cartify.core.api.NetworkResult
 import com.peterchege.cartify.core.api.requests.LoginUser
-import com.peterchege.cartify.data.UserRepositoryImpl
+import com.peterchege.cartify.data.AuthRepositoryImpl
 import com.peterchege.cartify.core.util.Screens
 import com.peterchege.cartify.core.util.UiEvent
-import com.peterchege.cartify.core.util.helperFunctions
+import com.peterchege.cartify.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
+data class FormState(
+    val email:String = "",
+    val password:String = "",
+    val isLoading:Boolean = false
+)
 
 @HiltViewModel
 class LoginScreenViewModel @Inject constructor(
-    private val api: CartifyApi,
-    private val userRepositoryImpl: UserRepositoryImpl
-
+    private val authRepository: AuthRepository
 ):ViewModel() {
-    private var _isLoading = mutableStateOf(false)
-    var isLoading : State<Boolean> = _isLoading
 
-    private var _emailState = mutableStateOf("")
-    var emailState: State<String> = _emailState
+    private val _uiState = MutableStateFlow(FormState())
+    val uiState = _uiState.asStateFlow()
 
-    private var _passwordState = mutableStateOf("")
-    var passwordState: State<String> =  _passwordState
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
-    fun OnChangePassword(text:String){
-        _passwordState.value =  text
+    fun onChangePassword(text:String){
+        _uiState.value = _uiState.value.copy(password = text)
+
 
     }
-    fun OnChangeEmail(text:String){
-        _emailState.value =  text
+    fun onChangeEmail(text:String){
+        _uiState.value = _uiState.value.copy(email = text)
+
 
     }
     fun loginUser(){
         viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                val loginUser = LoginUser(
-                    email = _emailState.value,
-                    password = _passwordState.value
-                )
-                val response = api.loginUser(loginUser = loginUser)
-                _isLoading.value = false
-                _eventFlow.emit(UiEvent.ShowSnackbar(uiText =response.msg ))
-
-                if (response.success){
-                    _eventFlow.emit(UiEvent.Navigate(route = Screens.DASHBOARD_SCREEN))
-                    response.user?.let {
-                        userRepositoryImpl.saveUser(it)
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            val loginUser = LoginUser(
+                email = _uiState.value.email,
+                password = _uiState.value.password
+            )
+            val response = authRepository.loginUser(loginUser)
+            _uiState.value = _uiState.value.copy(isLoading = false)
+            when(response){
+                is NetworkResult.Success -> {
+                    _eventFlow.emit(UiEvent.ShowSnackbar(uiText =response.data.msg))
+                    if (response.data.success){
+                        _eventFlow.emit(UiEvent.Navigate(route = Screens.DASHBOARD_SCREEN))
+                        response.data.user?.let {
+                            authRepository.saveUser(it)
+                        }
                     }
                 }
-
-            }catch (e:HttpException){
-                _isLoading.value = false
-                _eventFlow.emit(UiEvent.ShowSnackbar(uiText = "Server down...Please try again later" ))
-
-
-            }catch (e:IOException){
-                _isLoading.value = false
-                _eventFlow.emit(UiEvent.ShowSnackbar(uiText = "An unexpected error occurred" ))
-
+                is NetworkResult.Exception -> {
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _eventFlow.emit(UiEvent.ShowSnackbar(uiText = "Server down...Please try again later" ))
+                }
+                is NetworkResult.Error -> {
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _eventFlow.emit(UiEvent.ShowSnackbar(uiText = "An unexpected error occurred" ))
+                }
             }
         }
     }

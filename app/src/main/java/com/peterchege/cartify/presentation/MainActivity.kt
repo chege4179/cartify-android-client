@@ -22,16 +22,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.peterchege.cartify.core.util.Constants
-import com.peterchege.cartify.ui.Navigation
+import com.peterchege.cartify.presentation.navigation.Navigation
 import com.peterchege.cartify.presentation.theme.CartifyTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +44,6 @@ class MainActivity : ComponentActivity() {
             val viewModel: MainViewModel = hiltViewModel()
             val theme = viewModel.theme
                 .collectAsStateWithLifecycle(
-                    initialValue = Constants.DARK_MODE,
                     context = Dispatchers.Main.immediate
                 )
             CartifyTheme(

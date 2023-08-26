@@ -18,54 +18,68 @@ package com.peterchege.cartify.presentation.screens.cart_screen
 import android.content.Context
 import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.peterchege.cartify.core.api.NetworkResult
 import com.peterchege.cartify.core.api.requests.OrderBody
 import com.peterchege.cartify.core.room.entities.CartItem
+import com.peterchege.cartify.core.util.UiEvent
 import com.peterchege.cartify.core.util.helperFunctions
+import com.peterchege.cartify.domain.models.User
 import com.peterchege.cartify.domain.repository.CartRepository
 import com.peterchege.cartify.domain.repository.OrderRepository
-import com.peterchege.cartify.domain.repository.UserRepository
+import com.peterchege.cartify.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
+sealed interface CartScreenUiState {
+    data class Success(val user: User?, val cart:List<CartItem>):CartScreenUiState
+
+    object Loading:CartScreenUiState
+
+    data class Error(val message:String):CartScreenUiState
+
+}
 
 @HiltViewModel
 class CartScreenViewModel @Inject constructor(
     private val cartRepository: CartRepository,
-    private val userRepository: UserRepository,
+    private val authRepository: AuthRepository,
     private val orderRepository: OrderRepository,
 
     ) : ViewModel() {
-    val user = userRepository.getCurrentUser()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = null
-        )
 
-    val cart = cartRepository.getCart()
+
+    val uiState = combine(
+        authRepository.getCurrentUser(),
+        cartRepository.getCart()
+    ){ authUser,cart ->
+        CartScreenUiState.Success(user = authUser,cart = cart)
+    }
+        .onStart { CartScreenUiState.Loading }
+        .catch { CartScreenUiState.Error(message = "An unexpected error occurred") }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = emptyList()
+            initialValue = CartScreenUiState.Loading
         )
-    private val _subtotal = mutableStateOf<Int>(0)
-    val subtotal: State<Int> = _subtotal
 
     private val _isLoading = mutableStateOf(false)
     val isLoading: State<Boolean> = _isLoading
 
-    init {
-
-    }
+    private val _eventFlow = MutableSharedFlow<UiEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
 
     fun removeFromCart(id: String) {
         viewModelScope.launch {
@@ -104,8 +118,8 @@ class CartScreenViewModel @Inject constructor(
 
 
 
-    fun proceedToOrder(total: Long, scaffoldState: ScaffoldState, context: Context) {
-        val newOrder = user.value?.let {
+    fun proceedToOrder(total: Long, user: User?,cart: List<CartItem>) {
+        val newOrder = user?.let {
             OrderBody(
                 name = it.fullname,
                 email = it.email,
@@ -113,44 +127,40 @@ class CartScreenViewModel @Inject constructor(
                 userId = it._id,
                 address = it.address,
                 total = total,
-                products = cart.value
+                products = cart
             )
         }
         viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                if (helperFunctions.hasInternetConnection(context = context)) {
-                    val response = newOrder?.let {
-                        orderRepository.addOrder(it)
-                    }
-                    _isLoading.value = false
-                    if (response != null) {
-                        scaffoldState.snackbarHostState.showSnackbar(
-                            message = response.msg
-                        )
-                        if (response.success) {
+            val response = newOrder?.let {
+                orderRepository.addOrder(it)
+            }
+            _isLoading.value = false
+            if (response != null) {
+                when(response){
+                    is NetworkResult.Success -> {
+                        _eventFlow.emit(UiEvent.ShowSnackbar(uiText =response.data.msg ))
+
+                        if (response.data.success) {
                             cartRepository.clearCart()
                         }
-                    } else {
-                        scaffoldState.snackbarHostState.showSnackbar(
-                            message = "You have not logged in "
-                        )
+                    }
+                    is NetworkResult.Error -> {
+                        _isLoading.value = false
+                        _eventFlow.emit(UiEvent.ShowSnackbar(uiText ="Server down...Please try again later" ))
+
+                    }
+                    is NetworkResult.Exception -> {
+                        _isLoading.value = false
+                        _eventFlow.emit(UiEvent.ShowSnackbar(uiText ="Please check your internet connection" ))
+
                     }
                 }
 
-            } catch (e: HttpException) {
-                _isLoading.value = false
-                scaffoldState.snackbarHostState.showSnackbar(
-                    message = "Server down...Please try again later"
-                )
-            } catch (e: IOException) {
-                _isLoading.value = false
-                scaffoldState.snackbarHostState.showSnackbar(
-                    message = "Please check your internet connection"
-                )
+            } else {
+                _eventFlow.emit(UiEvent.ShowSnackbar(uiText ="You have not logged in " ))
+
             }
         }
-
     }
 
 }
