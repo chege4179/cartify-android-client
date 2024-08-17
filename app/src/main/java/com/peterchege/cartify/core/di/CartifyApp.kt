@@ -29,31 +29,15 @@ import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
 @HiltAndroidApp
-class CartifyApp : Application(), Configuration.Provider{
-    @Inject
-    lateinit var workerFactory: HiltWorkerFactory
+class CartifyApp : Application(){
+
+
+
+
+
     override fun onCreate() {
         super.onCreate()
-        setUpWorkerManagerNotificationChannel()
-        WorkInitializer.initialize(context = this)
-    }
 
-    override fun getWorkManagerConfiguration(): Configuration =
-        Configuration.Builder()
-            .setMinimumLoggingLevel(android.util.Log.DEBUG)
-            .setWorkerFactory(workerFactory)
-            .build()
-    private fun setUpWorkerManagerNotificationChannel(){
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            val channel = NotificationChannel(
-                WorkConstants.NOTIFICATION_CHANNEL,
-                WorkConstants.syncProductsWorkerName,
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(channel)
-        }
-        WorkManager.initialize(this, Configuration.Builder().setWorkerFactory(workerFactory).build())
     }
 
 
