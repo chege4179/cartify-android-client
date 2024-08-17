@@ -59,6 +59,10 @@ fun HomeScreen(
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(key1 = Unit) {
+        viewModel.syncProducts()
+    }
+
     HomeScreenContent(
         uiState = uiState,
         eventFlow = viewModel.eventFlow,

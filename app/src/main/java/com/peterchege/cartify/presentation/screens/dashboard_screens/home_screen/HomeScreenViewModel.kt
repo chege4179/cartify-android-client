@@ -19,6 +19,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.peterchege.cartify.core.room.entities.CartItem
 import com.peterchege.cartify.core.util.UiEvent
+import com.peterchege.cartify.core.work.sync_cache.SyncCacheWorkManager
+import com.peterchege.cartify.data.remote.RemoteProductsDataSource
 import com.peterchege.cartify.domain.models.Product
 import com.peterchege.cartify.domain.repository.CartRepository
 import com.peterchege.cartify.domain.repository.ProductRepository
@@ -45,6 +47,7 @@ sealed interface HomeScreenUiState {
 class HomeScreenViewModel @Inject constructor(
     private val productRepository: ProductRepository,
     private val cartRepository: CartRepository,
+    private val syncCacheWorkManager: SyncCacheWorkManager,
     ) : ViewModel() {
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
@@ -63,6 +66,12 @@ class HomeScreenViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000L),
             initialValue = HomeScreenUiState.Loading
         )
+
+    fun syncProducts(){
+        viewModelScope.launch {
+            syncCacheWorkManager.startSyncing()
+        }
+    }
 
 
 

@@ -26,7 +26,7 @@ plugins {
     id ("com.google.dagger.hilt.android") version "2.51" apply false
     id("com.google.devtools.ksp") version "2.0.0-1.0.22" apply false
     id("com.google.gms.google-services") version "4.4.2" apply false
-    id("com.google.firebase.crashlytics") version "3.0.2" apply false
+    id("com.google.firebase.crashlytics") version "2.9.9" apply false
     id("com.google.firebase.firebase-perf") version "1.4.2" apply false
     id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
