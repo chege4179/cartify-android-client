@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 
-buildscript {
-    val compose_version = "1.4.2"
-    val kotlin_version = "1.8.10"
-    dependencies {
-        classpath("com.google.dagger:hilt-android-gradle-plugin:2.45")
-        classpath("com.google.gms:google-services:4.3.15")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-        classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlin_version")
-        classpath("org.jlleitschuh.gradle:ktlint-gradle:11.4.0")
-    }
-} // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
-    id("com.android.application") version "7.4.2" apply false
-    id("com.android.library") version "7.4.2" apply false
-    id("org.jetbrains.kotlin.android") version "1.8.10" apply false
+    id("com.android.application") version "8.5.2" apply false
+    id("com.android.library") version "8.5.2" apply false
     id("com.diffplug.spotless") version "5.3.0"
-    kotlin("plugin.serialization") version "1.8.10"
+    kotlin("plugin.compose") version "2.0.0" apply false
+    kotlin("android") version "2.0.0" apply false
+    kotlin("jvm") version "2.0.0" apply false
+    kotlin("plugin.parcelize") version "2.0.0" apply false
+    kotlin("plugin.serialization") version "2.0.0" apply false
+    id ("com.google.dagger.hilt.android") version "2.51" apply false
+    id("com.google.devtools.ksp") version "2.0.0-1.0.22" apply false
+    id("com.google.gms.google-services") version "4.4.2" apply false
+    id("com.google.firebase.crashlytics") version "3.0.2" apply false
+    id("com.google.firebase.firebase-perf") version "1.4.2" apply false
     id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
-    id("io.gitlab.arturbosch.detekt") version "1.22.0"
-    id("com.android.test") version "7.4.2" apply false
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("com.android.test") version "8.5.2" apply false
 }
 
 apply(plugin = "org.jlleitschuh.gradle.ktlint")
