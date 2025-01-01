@@ -15,18 +15,18 @@
  */
 
 plugins {
-    id("com.android.application") version "8.5.2" apply false
-    id("com.android.library") version "8.5.2" apply false
+    id("com.android.application") version "8.7.3" apply false
+    id("com.android.library") version "8.7.3" apply false
     id("com.diffplug.spotless") version "5.3.0"
-    kotlin("plugin.compose") version "2.0.0" apply false
-    kotlin("android") version "2.0.0" apply false
-    kotlin("jvm") version "2.0.0" apply false
-    kotlin("plugin.parcelize") version "2.0.0" apply false
-    kotlin("plugin.serialization") version "2.0.0" apply false
-    id ("com.google.dagger.hilt.android") version "2.51" apply false
-    id("com.google.devtools.ksp") version "2.0.0-1.0.22" apply false
+    kotlin("plugin.compose") version "2.1.0" apply false
+    kotlin("android") version "2.1.0" apply false
+    kotlin("jvm") version "2.1.0" apply false
+    kotlin("plugin.parcelize") version "2.1.0" apply false
+    kotlin("plugin.serialization") version "2.1.0" apply false
+    id ("com.google.dagger.hilt.android") version "2.54" apply false
+    id("com.google.devtools.ksp") version "2.1.0-1.0.29" apply false
     id("com.google.gms.google-services") version "4.4.2" apply false
-    id("com.google.firebase.crashlytics") version "2.9.9" apply false
+    id("com.google.firebase.crashlytics") version "3.0.2" apply false
     id("com.google.firebase.firebase-perf") version "1.4.2" apply false
     id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
@@ -44,7 +44,6 @@ ktlint {
 
 apply(plugin = "io.gitlab.arturbosch.detekt")
 detekt {
-    config = files("${project.rootDir}/detekt.yml")
     parallel = true
 }
 apply(plugin = "com.diffplug.spotless")

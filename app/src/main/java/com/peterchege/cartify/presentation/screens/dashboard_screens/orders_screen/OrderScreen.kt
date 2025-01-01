@@ -18,7 +18,11 @@ package com.peterchege.cartify.presentation.screens.dashboard_screens.orders_scr
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.*
+import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -30,18 +34,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import com.google.accompanist.pager.*
 import com.peterchege.cartify.presentation.components.CartIconComponent
 import com.peterchege.cartify.presentation.screens.dashboard_screens.orders_screen.tabs.PastOrdersTab
 import com.peterchege.cartify.presentation.screens.dashboard_screens.orders_screen.tabs.PendingOrdersTab
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun OrderScreen(
-    navigateToCartScreen:() -> Unit,
+    navigateToCartScreen: () -> Unit,
     viewModel: OrderViewModel = hiltViewModel()
 ) {
     val cart = viewModel.cart.collectAsStateWithLifecycle()
@@ -70,7 +71,7 @@ fun OrderScreen(
                             fontSize = 20.sp,
                         )
                         CartIconComponent(
-                            cartCount =cart.value.size,
+                            cartCount = cart.value.size,
                             navigateToCartScreen = navigateToCartScreen,
                         )
                     }
@@ -78,17 +79,15 @@ fun OrderScreen(
             )
         },
 
-    ) {
+        ) {
         TabScreen()
     }
 }
 
 
-
-@ExperimentalPagerApi
 @Composable
 fun TabScreen() {
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(pageCount = { 2 })
     Column(
         modifier = Modifier.background(Color.White)
     ) {
@@ -97,10 +96,10 @@ fun TabScreen() {
     }
 }
 
-@ExperimentalPagerApi
+
 @Composable
 fun Tabs(pagerState: PagerState) {
-    val list = listOf("Pending Orders","Past Orders")
+    val list = listOf("Pending Orders", "Past Orders")
     val scope = rememberCoroutineScope()
 
     TabRow(
@@ -115,15 +114,13 @@ fun Tabs(pagerState: PagerState) {
         },
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(
-                modifier = Modifier.pagerTabIndicatorOffset(
-                    pagerState = pagerState,
-                    tabPositions =  tabPositions),
+                modifier = Modifier.tabIndicatorOffset(currentTabPosition = tabPositions[pagerState.currentPage]),
                 height = 2.dp,
                 color = MaterialTheme.colors.primary
             )
         }
     ) {
-        list.forEachIndexed { index, _->
+        list.forEachIndexed { index, _ ->
             Tab(
                 text = {
                     Text(
@@ -143,14 +140,13 @@ fun Tabs(pagerState: PagerState) {
     }
 }
 
-@ExperimentalPagerApi
+
 @Composable
 fun TabsContent(pagerState: PagerState) {
-    HorizontalPager(state = pagerState ,count = 2) { page ->
-        when(page) {
+    HorizontalPager(state = pagerState) { page ->
+        when (page) {
             0 -> PendingOrdersTab()
             1 -> PastOrdersTab()
-
         }
     }
 }

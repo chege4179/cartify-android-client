@@ -44,9 +44,10 @@ fun Product.toSavedProductEntity(): SavedProductEntity {
         description = description,
         onOffer = onOffer,
         rating = rating,
-        image = images[0]!!.url,
+        image = images,
     )
 }
+
 fun Product.toCachedProductEntity(): CachedProductEntity {
     return CachedProductEntity(
         name = name,
@@ -58,16 +59,17 @@ fun Product.toCachedProductEntity(): CachedProductEntity {
         description = description,
         onOffer = onOffer,
         rating = rating,
-        image = images[0]!!.url,
+        images = images,
     )
 }
+
 fun SavedProductEntity.toExternalModel(): Product {
     return Product(
         _id = _id,
         __v = 0,
         category = category,
         description = description,
-        images = listOf(Image("id",image)),
+        images = image,
         name = name,
         offerDuration = "",
         offerPrice = 0,
@@ -85,7 +87,7 @@ fun CachedProductEntity.toExternalModel(): Product {
         __v = 0,
         category = category,
         description = description,
-        images = listOf(Image("id",image)),
+        images = images,
         name = name,
         offerDuration = "",
         offerPrice = 0,

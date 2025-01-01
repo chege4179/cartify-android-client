@@ -16,10 +16,11 @@
 package com.peterchege.cartify.presentation.screens.product_screen
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -37,22 +38,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.SubcomposeAsyncImage
-import coil.compose.rememberImagePainter
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import com.peterchege.cartify.domain.models.Product
 import com.peterchege.cartify.presentation.components.CartIconComponent
 import com.peterchege.cartify.presentation.components.LoadingComponent
 import com.peterchege.cartify.presentation.components.PagerIndicator
-import com.peterchege.cartify.presentation.theme.Grey100
 import kotlinx.coroutines.launch
 
 @ExperimentalCoilApi
-@ExperimentalPagerApi
 @Composable
 fun ProductScreen(
     navigateToCartScreen: () -> Unit,
@@ -72,7 +66,6 @@ fun ProductScreen(
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalCoilApi
-@ExperimentalPagerApi
 @Composable
 fun ProductScreenContent(
     uiState: ProductScreenUiState,
@@ -127,10 +120,9 @@ fun ProductScreenContent(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     item {
-                        val pagerState1 = rememberPagerState(initialPage = 0)
+                        val pagerState1 = rememberPagerState(initialPage = 0, pageCount = { uiState.product.images.size })
                         val coroutineScope = rememberCoroutineScope()
                         HorizontalPager(
-                            count = uiState.product.images.size,
                             state = pagerState1
                         ) { image ->
                             Box(
@@ -169,7 +161,7 @@ fun ProductScreenContent(
                                             .padding(horizontal = 3.dp),
                                         textAlign = TextAlign.Start,
                                         fontSize = 17.sp,
-                                        text = "${image + 1}/${uiState.product.images}",
+                                        text = "${image + 1}/${uiState.product.images.size}",
                                         style = TextStyle(color = MaterialTheme.colors.primary)
                                     )
                                 }

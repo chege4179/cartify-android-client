@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.peterchege.cartify.core.util.Constants
 import com.peterchege.cartify.presentation.navigation.Navigation
 import com.peterchege.cartify.presentation.theme.CartifyTheme
@@ -35,7 +34,7 @@ import kotlinx.coroutines.Dispatchers
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @ExperimentalPagerApi
+
     @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

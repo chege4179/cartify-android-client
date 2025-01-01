@@ -17,6 +17,8 @@ package com.peterchege.cartify.core.room.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.peterchege.cartify.core.room.converters.ImageConverter
 import com.peterchege.cartify.core.room.dao.CachedProductDao
 import com.peterchege.cartify.core.room.dao.CartDao
 import com.peterchege.cartify.core.room.dao.SavedProductDao
@@ -24,6 +26,8 @@ import com.peterchege.cartify.core.room.entities.CachedProductEntity
 import com.peterchege.cartify.core.room.entities.CartItem
 import com.peterchege.cartify.core.room.entities.SavedProductEntity
 
+
+@TypeConverters(ImageConverter::class)
 @Database(
     entities = [
         CartItem::class,

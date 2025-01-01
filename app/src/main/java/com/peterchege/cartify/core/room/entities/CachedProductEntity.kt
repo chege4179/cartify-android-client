@@ -17,6 +17,7 @@ package com.peterchege.cartify.core.room.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.peterchege.cartify.domain.models.Image
 
 @Entity(tableName ="cached_product")
 data class CachedProductEntity(
@@ -24,7 +25,7 @@ data class CachedProductEntity(
     val _id: String,
     val category: String,
     val description: String,
-    val image: String,
+    val images: List<Image>,
     val name: String,
     val offerDuration: String,
     val offerPrice: Int,

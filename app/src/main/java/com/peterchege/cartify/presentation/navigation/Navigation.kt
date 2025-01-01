@@ -25,7 +25,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import coil.annotation.ExperimentalCoilApi
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.peterchege.cartify.core.util.Screens
 import com.peterchege.cartify.presentation.screens.cart_screen.CartScreen
 import com.peterchege.cartify.presentation.screens.dashboard_screens.DashBoardScreen
@@ -41,7 +40,6 @@ import com.peterchege.cartify.presentation.screens.sign_up_screen.SignUpScreen
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalCoilApi::class)
 @ExperimentalMaterialApi
-@ExperimentalPagerApi
 @Composable
 fun Navigation(
     navController: NavHostController

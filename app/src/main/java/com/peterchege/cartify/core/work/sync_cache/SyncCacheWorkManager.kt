@@ -51,7 +51,7 @@ class SyncCacheWorkManagerImpl @Inject constructor(
         WorkManager.getInstance(context).getWorkInfosForUniqueWorkLiveData(
             WorkConstants.syncProductsWorkerName
         )
-            .map(MutableList<WorkInfo>::anyRunning)
+            .map(List<WorkInfo>::anyRunning)
             .asFlow()
             .conflate()
 

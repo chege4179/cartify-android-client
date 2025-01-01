@@ -26,7 +26,7 @@ data class SavedProductEntity(
     val _id: String,
     val category: String,
     val description: String,
-    val image: String,
+    val image: List<Image>,
     val name: String,
     val offerDuration: String,
     val offerPrice: Int,

@@ -15,6 +15,10 @@
  */
 package com.peterchege.cartify.domain.models
 
+import kotlinx.serialization.Serializable
+
+
+@Serializable
 data class Image(
     val id: String,
     val url: String
